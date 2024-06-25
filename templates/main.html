@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1,width=device-width">
+        
+        <title>GlobeAI</title>
+
+        <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
+
+        <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+        <script>
+            const mapboxAccessToken = "{{ mapbox_access_token }}";
+        </script>
+    </head>
+
+    <body>
+        <div id="map"></div>
+        <div style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%);">
+            <button id="playButton" style="font-size: 24px; padding: 10px; cursor: pointer;" title="Start globe rotation" disabled>
+                <i class="fas fa-play"></i>
+            </button>
+            <button id="pauseButton" style="font-size: 24px; padding: 10px; cursor: pointer;" title="Pause globe rotation" enabled>
+                <i class="fas fa-pause"></i>
+            </button>
+        </div>
+        
+        <div id="side-panel" class="side-panel">
+            <div id="content-container"></div>
+        </div>
+        <div class="side-panel-column"></div>
+        
+        <div id="loadingIndicator" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; background-color: white; padding: 20px; border-radius: 10px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #007bff;"></i>
+            <span>Loading...</span>
+        </div>
+
+        <script src="{{ url_for('static', filename='main.js') }}"></script>
+    </body>
+</html>
