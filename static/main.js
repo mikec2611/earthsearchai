@@ -1,37 +1,28 @@
 mapboxgl.accessToken = mapboxAccessToken;
 const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/satellite-streets-v11', // Use Mapbox Streets style
-    projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
+    style: 'mapbox://styles/mapbox/satellite-streets-v11',
+    projection: 'globe', 
     zoom: 1.5,
     center: [-90, 40]
 });
 
 
-// let popup = new mapboxgl.Popup({
-//     closeButton: true,
-//     closeOnClick: false,
-//     className: 'chat-bubble',
-//     anchor: 'bottom',
-// });
 
-// Listen for wheel event to pause rotation
 map.on('wheel', () => {
     userInteracting = true;
     if (spinEnabled) {
-        map.stop(); // Immediately end ongoing animation
+        map.stop();
     }
-    // Clear the timeout if it exists
     if (scrollTimeout !== undefined) {
         clearTimeout(scrollTimeout);
     }
-    // Set a timeout to restart the rotation
     scrollTimeout = setTimeout(() => {
         if (!userInteracting && !spinEnabled) {
             spinGlobe();
         }
         userInteracting = false;
-    }, 200); // 200ms without a 'wheel' event is considered the end of scrolling
+    }, 200);
 });
 
 map.on('style.load', () => {
@@ -50,7 +41,7 @@ let savedLocations = []; // Array to store location details
 let isPanelShown = false;
 
 function displayInfoInPanel(content) {
-    document.getElementById('content-container').innerHTML = content;
+    document.getElementById('content_container').innerHTML = content;
     if (!isPanelShown) {
         const sidePanel = document.querySelector('.side-panel');
         sidePanel.style.transform = 'translateX(0)';

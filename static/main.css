@@ -1,4 +1,12 @@
-body { margin: 0; padding: 0; }
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Play:wght@400;500;700&display=swap');
+
+body { 
+    font-family: 'Play', sans-serif;
+    font-weight:bold;
+    margin: 0;
+    padding: 0; 
+}
 #map { 
     position: absolute; 
     top: 0; 
@@ -7,76 +15,21 @@ body { margin: 0; padding: 0; }
     transition: margin-left 300ms ease-in-out;
 }
 
-.mapboxgl-popup.chat-bubble {
-    background-color: #ffffff; /* White background */
-    border-radius: 10px; /* Larger border radius for a softer look */
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.15); /* Enhanced shadow for more depth */
-    font-family: 'Montserrat', sans-serif; /* Modern font */
-    border: none; /* Remove border */
-    overflow: hidden;
-    opacity: 1; /* Start fully opaque */
-    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition for opacity and 3D effect */
-    width: 600px;
-    height: 450px;
-    max-width: 600px !important;
-    transform: translateZ(0); /* Prepare for 3D transformation */
-    &:hover {
-        transform: translateY(-5px) scale(1.05); /* Slight rise and grow effect on hover */
-        box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.2), 0 5px 25px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover for more depth */
-    }
-}
-
-.mapboxgl-popup.chat-bubble .mapboxgl-popup-content {
-    padding: 20px;
-    color: #333333; /* Dark gray text */
-    background-color: #ffffff; /* White background */
-    background: linear-gradient(to bottom, #ffffff, #f7f7f7); /* Subtle gradient for depth */
-}
-
-.mapboxgl-popup.chat-bubble .mapboxgl-popup-content h1 {
-    margin: 0;
-    padding: 10px 0;
-    font-size: 40px;
-    font-weight: bold;
-    vertical-align: middle;
-    color: #333333; /* Dark gray text */
-    background-color: #ffffff; /* White background */
-    border-bottom: 1px solid #eeeeee; /* Light gray border */
-}
-
-.mapboxgl-popup.chat-bubble .mapboxgl-popup-content p {
-    margin: 0;
-    padding: 10px 0;
-    font-size: 20px;
-    line-height: 1.5;
-    text-align: justify;
-    color: #666666; /* Lighter gray text */
-    background-color: #ffffff; /* White background */
-}
-
-.mapboxgl-popup.chat-bubble .mapboxgl-popup-close-button {
-    color: #333333; /* Dark gray text */
-    font-size: 40px;
-    background-color: #ffffff; /* White background */
+.marker {
+    background-color: #ff4757;
+    color: #ffffff;
     border-radius: 50%;
-    padding: 2px;
-    padding-right:10px;
-    border: none; /* Remove border */
-    transition: color 0.3s ease;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+.marker:hover {
+    background-color: #f28585;
 }
 
-.mapboxgl-popup.chat-bubble .mapboxgl-popup-close-button:hover {
-    color: #999999; /* Gray text on hover */
-}
-
-.mapboxgl-popup.chat-bubble .mapboxgl-popup-tip {
-    border-top-color: #ffffff; /* White tip */
-}
-
-.mapboxgl-popup-track-pointer * {
-    -webkit-user-select: none;
-    user-select: none;
-}
 
 button[disabled] {
     opacity: 0.5;
@@ -88,78 +41,114 @@ button[disabled] {
     filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
 }
 
-/* Simplified and redesigned CSS for side-panel and close-panel */
-
-/* Import Google Fonts and Font Awesome for icons */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
-
-/* Import a new Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
 .side-panel {
-    font-family: 'Poppins', sans-serif; /* Modern and clean font */
-    background: linear-gradient(135deg, #1c1ebf, #a4e3f4); /* Vibrant gradient background */
-    box-shadow: 5px 0 15px rgba(0,0,0,0.2); /* Deeper shadow for more depth */
-    overflow-y: auto; /* Allows scrolling within the panel */
-    z-index: 10; /* Ensure it's above other content */
-    transition: transform 0.3s ease-in-out; /* Smooth opening/closing */
-    position: fixed; /* Fixed position to the viewport */
-    top: 0; /* Align to the top */
-    left: 0; /* Align to the left */
-    height: 100%; /* Full height of the viewport */
-    width: 20%; /* Adjust width as needed */
-    transform: translateX(-100%); /* Start off-screen to the left */
-    border-right: 2px solid #fff; /* White border for contrast */
-    color: #fff; /* White text color for better readability */
+    background: linear-gradient(135deg, #1c1ebf, #a4e3f4);
+    box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    overflow-y: auto; 
+    z-index: 10; 
+    transition: transform 0.3s ease-in-out;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 22%;
+    transform: translateX(-100%);
+    border-right: 2px solid #fff;
+    color: #fff;
     display: flex;
-    padding: 20px; /* Added padding for spacing */
+    flex-direction: column;
+    padding: 10px;
+}
+
+#content_container {
+    height: 50%;
+    overflow: auto;
+}
+
+#add_info_buttons{
+    height: 10%; 
+    overflow: auto;
+}
+
+#add_info_container{
+    margin-top:10px;
+    height:35%;
+    overflow:auto;
+    background-color:gray
 }
 
 .side-panel-column {
    position:absolute;
-   left:22%;
+   left:24%;
    top:10px;
 }
 
 .side-panel ul li {
-    margin-bottom: 40px; /* Adjust the value as needed */
+    margin-bottom: 40px;
 }
 
-.marker {
-    background-color: #ff4757; /* Bright red background */
-    color: #ffffff; /* White text */
-    border-radius: 50%; /* Circular shape */
-    padding: 5px 10px; /* Padding around text */
-    text-align: center; /* Center text horizontally */
-    font-size: 12px; /* Smaller font size */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Simulate depth with shadow */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Subtle shadow for text */
-    cursor: pointer; /* Change cursor to pointer on hover */
-}
-.marker:hover {
-    background-color: #f28585; /* Lighter red on hover */
-}
-
-/* Style for buttons corresponding to markers */
-.marker-button {
-    max-width: 250px; /* Set width */
-    height: 40px; /* Set height to make it square */
+#add_info_buttons {
     display: flex;
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
+    flex-wrap: wrap;
+    gap: 0px 10px; /* Adjust the space between the buttons */
+    justify-content: center; /* Center flex items horizontally */
+    margin: 0 auto; /* Center the container itself */
+    width: fit-content;
+}
+
+.info-button {
+    width: 30%; /* Set a fixed width for all buttons */
+    height: 50px; /* Adjust the height as needed */
+    background-color: #2011fa; /* Example background color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor:pointer;border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.info-button:hover {
+    transform: translateY(-2px); /* Slight lift effect on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
+    background-color: #2d96d7; /* Example background color */
+}
+
+.info-button:active {
+    transform: translateY(4px); /* Move the button down to mimic a press effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
+    background-color: #1e0fd1; /* Darken the background color to indicate active state */
+}
+
+.marker-button {
+    max-width: 250px;
+    height: 40px; 
+    display: flex;
+    justify-content: center;
+    align-items: center; 
     border-radius: 5px;
+    margin-bottom:10px;
     cursor: pointer;
-    font-size: 16px; /* Adjust font size as needed */
+    font-size: 16px;
     background-color: #ff4757;
-    padding: 10px;
+    padding: 12px;
     font-weight: bold;
     overflow: hidden;
     text-wrap: nowrap;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
 }
 
-/* Hover effect for buttons */
 .marker-button:hover {
     background-color: #f28585; 
+    transform: translateY(-2px); /* Slight lift effect on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
+}
+
+.marker-button:active {
+    transform: translateY(4px); /* Move the button down to mimic a press effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
+    background-color: #7a1111; /* Darken the background color to indicate active state */
 }
 
 #loadingIndicator {
@@ -169,21 +158,21 @@ button[disabled] {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 100;
-    background-color: white; /* White background */
+    background-color: white;
     padding: 20px;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    text-align: center; /* Center the content */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 #loadingIndicator span {
     display: block;
     margin-top: 10px;
-    color: #333; /* Dark text for contrast */
+    color: #333;
     font-size: 16px;
 }
 
 .fas.fa-spinner.fa-spin {
-    color: #007bff; /* Blue spinner icon */
+    color: #007bff;
     font-size: 24px;
 }
