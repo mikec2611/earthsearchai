@@ -52,6 +52,7 @@ button[disabled] {
     left: 0;
     height: 100%;
     width: 22%;
+    min-width:365px;
     transform: translateX(-100%);
     border-right: 2px solid #fff;
     color: #fff;
@@ -63,6 +64,14 @@ button[disabled] {
 #content_container {
     height: 50%;
     overflow: auto;
+}
+
+#add_info_header{
+    text-align:center;
+    width:100%;
+    padding-bottom:10px;
+    font-weight:bold;
+    font-size:30px;
 }
 
 #add_info_buttons{
@@ -96,7 +105,7 @@ button[disabled] {
     width: fit-content;
 }
 
-.info-button {
+.info_button {
     width: 30%; /* Set a fixed width for all buttons */
     height: 50px; /* Adjust the height as needed */
     background-color: #2011fa; /* Example background color */
@@ -104,18 +113,19 @@ button[disabled] {
     justify-content: center;
     align-items: center;
     text-align: center;
+    font-size:0.9em;
     cursor:pointer;border-radius: 8px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth effect */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
 }
 
-.info-button:hover {
+.info_button:hover {
     transform: translateY(-2px); /* Slight lift effect on hover */
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
     background-color: #2d96d7; /* Example background color */
 }
 
-.info-button:active {
+.info_button:active {
     transform: translateY(4px); /* Move the button down to mimic a press effect */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
     background-color: #1e0fd1; /* Darken the background color to indicate active state */

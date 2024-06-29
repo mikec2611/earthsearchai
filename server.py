@@ -89,4 +89,4 @@ def get_location_name(latitude, longitude):
     
 if __name__ == '__main__':
     server = Server(app.wsgi_app)
-    server.serve(port=PORT, host='0.0.0.0', debug=True)
+    server.serve(port=PORT, host='127.0.0.1', debug=True)

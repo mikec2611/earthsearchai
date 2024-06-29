@@ -232,6 +232,38 @@ map.on('click', function(e) {
     }, 500);
 });
 
+let debounceTimerInfo;
+$('.info_button').on('click', function(e) {
+    clearTimeout(debounceTimerInfo);
+    document.getElementById('loadingIndicator').style.display = 'block';
+    debounceTimerInfo = setTimeout(() => {
+        $.ajax({
+            url: '/coordinates',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 'lat': e.lngLat.lat, 'lng': e.lngLat.lng }),
+            success: function(response) {
+                // const image_url = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${e.lngLat.lat},${e.lngLat.lng},14,0/600x300?access_token=${mapboxAccessToken}`;
+                // console.log(image_url)
+                // Add a marker at the clicked location
+                
+                content = response.content //+ `<img src="${image_url}" alt="Map Image" />`;
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(content, "text/html");
+                let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
+                clickCounter = addMarkerAtClick(e, content);
+                addButtonForMarker(clickCounter, locationTitle, e.lngLat.lng, e.lngLat.lat);
+                displayInfoInPanel(content)
+                document.getElementById('loadingIndicator').style.display = 'none';
+            },
+            error: function(error) {
+                console.log(error);
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        });
+    }, 500);
+});
+
 document.getElementById('playButton').addEventListener('click', function() {
     startRotation();
     spinGlobe();
