@@ -36,6 +36,18 @@ button[disabled] {
     cursor: not-allowed;
 }
 
+#map_rotate_btns{
+    position: fixed;
+    top: 10px;
+    left: 57.5%;
+}
+
+.map_rotate_btn{
+    font-size: 24px; 
+    padding: 10px;
+    cursor: pointer;
+}
+
 .fa-rotate-90 {
     -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
     filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
@@ -62,14 +74,20 @@ button[disabled] {
 }
 
 #content_container {
-    height: 50%;
-    overflow: auto;
+    height: 40%;
 }
 
 #loc_video{
-    height:25%;
-    overflow: auto;
-    background-color: green;
+    height:30%;
+    margin-bottom:20px;
+}
+
+.video_container{
+    width:99%;
+    height:99%;
+    text-align:center;
+    font-size:30px;
+    font-weight:bold;
 }
 
 #add_info_header{
@@ -82,13 +100,11 @@ button[disabled] {
 
 #add_info_buttons{
     height: 10%; 
-    overflow: auto;
 }
 
 #add_info_container{
     margin-top:10px;
-    height:35%;
-    overflow:auto;
+    height:13%;
     background-color:gray
 }
 
@@ -137,7 +153,7 @@ button[disabled] {
     background-color: #1e0fd1; /* Darken the background color to indicate active state */
 }
 
-.marker-button {
+.marker_button {
     max-width: 250px;
     height: 40px; 
     display: flex;
