@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<prompts>
+        <prompt_main>
+                  <![CDATA[
+                        Reply with information about [loc_type_wording].
+                        Ensure extreme precision in matching the information to the exact coordinates provided.
+                        Verify the location thoroughly before responding.
+                        Your reply must strictly adhere to the following HTML format:
+                        "<h1>{Location name}</h1>
+                        <p><ul>
+                        <li>{fact1}</li>
+                        <li>{fact2}</li>
+                        <li>{fact3}</li>
+                        <li>{fact4}</li>
+                        <li>{fact5}</li>
+                        </ul></p>"
+                        Guidelines to follow:
+                        1. The <h1> tag should contain ONLY the location name, nothing else.
+                        2. Provide exactly 5 concise bullet points within the <ul> element.
+                        3. Each bullet point should focus on unique, interesting facts or historical information.
+                        4. Do not include the coordinates in your response.
+                        5. Ensure all information is specific to the exact location given by the coordinates.
+                        6. Include only the specified HTML tags; do not add any additional formatting or text.
+                        ]]>
+        </prompt_main>
+
+        <prompt_video>
+                Find a relevant Youtube video about [loc_type_wording]. 
+                It is highly important you provide an active video url and not a placeholder.
+                The video should cover local attractions, sightseeing, and landmarks.
+                Provide the full URL of the video in a format that is ready to embed in a website.
+                Verify that the video is appropriate and relevant to the location.
+                Reply only with the iframe html markup with video url and nothing else.
+        </prompt_video>
+</prompts>

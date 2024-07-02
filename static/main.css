@@ -66,6 +66,12 @@ button[disabled] {
     overflow: auto;
 }
 
+#loc_video{
+    height:25%;
+    overflow: auto;
+    background-color: green;
+}
+
 #add_info_header{
     text-align:center;
     width:100%;

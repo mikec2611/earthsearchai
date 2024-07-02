@@ -128,6 +128,21 @@ function addButtonForMarker(markerID, locationTitle, longitude, latitude) {
     });
 }
 
+function embed_loc_video(location_video) {
+    document.getElementById('loc_video').innerHTML = location_video
+}
+
+function trim_video_link(content) {
+     // Adjusted regex to handle multiline and any characters, including new lines, within <video_link>
+     const videoLinkRegex = /<video_link>[\s\S]*?<\/video_link>/;
+
+     // Remove the <video_link> tag and its contents
+     content = content.replace(videoLinkRegex, '');
+ 
+     return content; // Return the modified content
+
+}
+
 function startRotation() {
     spinEnabled = true;
     spinGlobe();
@@ -209,19 +224,37 @@ map.on('click', function(e) {
             url: '/coordinates',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ 'lat': e.lngLat.lat, 'lng': e.lngLat.lng }),
+            data: JSON.stringify({ 'lat': e.lngLat.lat, 
+                                    'lng': e.lngLat.lng, 
+                                    'prompt_type': 'general',  
+                                    'detail_topic': 'general' 
+                                }),
             success: function(response) {
                 // const image_url = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${e.lngLat.lat},${e.lngLat.lng},14,0/600x300?access_token=${mapboxAccessToken}`;
                 // console.log(image_url)
                 // Add a marker at the clicked location
-                
-                content = response.content //+ `<img src="${image_url}" alt="Map Image" />`;
                 let parser = new DOMParser();
-                let doc = parser.parseFromString(content, "text/html");
-                let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
-                clickCounter = addMarkerAtClick(e, content);
-                addButtonForMarker(clickCounter, locationTitle, e.lngLat.lng, e.lngLat.lat);
-                displayInfoInPanel(content)
+
+                main_content = response.main_content //+ `<img src="${image_url}" alt="Map Image" />`;
+                let reponse_main_content = parser.parseFromString(main_content, "text/html");
+                video_content = response.video_content //+ `<img src="${image_url}" alt="Map Image" />`;
+                let reponse_video_content = parser.parseFromString(video_content, "text/html");
+
+                // set marker
+                let location_title = reponse_main_content.querySelector('h1').textContent;
+                clickCounter = addMarkerAtClick(e, main_content);
+                addButtonForMarker(clickCounter, location_title, e.lngLat.lng, e.lngLat.lat);
+                
+                // video embed;
+                let iframeElement = reponse_video_content.querySelector('iframe');
+                let location_video = iframeElement ? iframeElement.outerHTML : null;
+                console.log(location_video)
+                embed_loc_video(location_video)
+                
+                // display main_content
+                main_content = trim_video_link(main_content)
+                displayInfoInPanel(main_content)
+                
                 document.getElementById('loadingIndicator').style.display = 'none';
             },
             error: function(error) {
@@ -234,6 +267,7 @@ map.on('click', function(e) {
 
 let debounceTimerInfo;
 $('.info_button').on('click', function(e) {
+    let detail_topic = $(this).text();
     clearTimeout(debounceTimerInfo);
     document.getElementById('loadingIndicator').style.display = 'block';
     debounceTimerInfo = setTimeout(() => {
@@ -241,19 +275,17 @@ $('.info_button').on('click', function(e) {
             url: '/coordinates',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ 'lat': e.lngLat.lat, 'lng': e.lngLat.lng }),
+            data: JSON.stringify({ 'lat': 'detail', 
+                                    'lng': 'detail', 
+                                    'prompt_type': 'detail',  
+                                    'detail_topic': detail_topic 
+                                }),
             success: function(response) {
-                // const image_url = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${e.lngLat.lat},${e.lngLat.lng},14,0/600x300?access_token=${mapboxAccessToken}`;
-                // console.log(image_url)
-                // Add a marker at the clicked location
+                // content = response.content
+                // let parser = new DOMParser();
+                // let doc = parser.parseFromString(content, "text/html");
+                // let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
                 
-                content = response.content //+ `<img src="${image_url}" alt="Map Image" />`;
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(content, "text/html");
-                let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
-                clickCounter = addMarkerAtClick(e, content);
-                addButtonForMarker(clickCounter, locationTitle, e.lngLat.lng, e.lngLat.lat);
-                displayInfoInPanel(content)
                 document.getElementById('loadingIndicator').style.display = 'none';
             },
             error: function(error) {

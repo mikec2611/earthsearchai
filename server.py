@@ -1,5 +1,8 @@
 import openai
 import requests
+import xml.etree.ElementTree as ET
+import re
+
 from os import getenv
 from livereload import Server
 from flask import Flask, render_template, jsonify, request
@@ -11,6 +14,23 @@ PORT = 8000
 
 app = Flask(__name__)
 
+def get_xml_contents(xml_file, xml_tag):
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+    contents = root.find(xml_tag)
+    if contents is not None:
+        contents = re.sub(r'<!\[CDATA\[|\]\]>', '', contents.text)  # Remove CDATA section tags if present
+        contents = re.sub(r'\s+', ' ', contents).strip()  # Collapse multiple spaces
+        contents = contents.replace("\\", "")
+        contents = contents.replace("'", "")
+        
+    else:
+        contents = ""
+        
+    return contents
+
+
+
 @app.route('/')
 def home():
     return render_template('main.html', mapbox_access_token=mapbox_token)
@@ -20,41 +40,49 @@ def coordinates():
     data = request.get_json()
     coordinates = str(data['lat']) + ', ' + str(data['lng'])
     loc_result, loc_name = get_location_name(data['lat'], data['lng'])
-    # print(loc_name)
-    # if loc_result == 1:
-    #     prompt = 'Reply with information about the location with coordinates: ' + coordinates + \
-    #                 ') - be as specific as possible to the exact coordinates and \
-    #                      double check that the location you will talk about matches the coordinates provided. \
-    #               Your reply must follow the exact html formatting below: \
-    #               <h1> Location name only and nothing else whatsoever </h1> \
-    #               <p> 5 concise bullet points listing interesting facts and history about the location  \
-    #                   in an html <ul> format (only include the <ul> and child <li> elements and closing tags and nothing else). \
-    #                   Do not put the coordinates in the answer. \
-    #               </p>'
-    # else:
-    #     prompt = 'Reply with information about about ' + loc_name + '(coordinates at ' + coordinates + \
-    #                 ') - be as specific as possible. \
-    #               Your reply must follow the exact html formatting below: \
-    #               <h1> Location name only and nothing else whatsoever </h1> \
-    #               <p> 5 concise bullet points listing interesting facts and history about the location  \
-    #                   in an html <ul> format (only include the <ul> and child <li> elements and closing tags and nothing else). \
-    #                   Do not put the coordinates in the answer. \
-    #               </p>'
+    print(loc_name)
 
-    # content = get_gpt_info(prompt)
+    if data['prompt_type'] == 'general':
+        prompt_main = get_xml_contents('prompts.xml', 'prompt_main')
+        prompt_video = get_xml_contents('prompts.xml', 'prompt_video')
+
+        # loc_type_wording changes based on whether the location is known or unknown
+        if loc_result == 1:
+            prompt_main = prompt_main.replace('[loc_type_wording]', loc_name + '(coordinates at ' + coordinates + ')')
+            prompt_video = prompt_video.replace('[loc_type_wording]', loc_name + '(coordinates at ' + coordinates + ')')
+        else:
+            prompt_main = prompt_main.replace('[loc_type_wording]', 'the location at coordinates:' +  coordinates)
+            prompt_video = prompt_video.replace('[loc_type_wording]', 'the location at coordinates:' +  coordinates)
+
+        print('prompt_main', prompt_main)
+        print('prompt_video',prompt_video)
+
+        main_content = get_gpt_info(prompt_main)
+        video_content = get_gpt_info(prompt_video)
+
+        print('main_content',main_content)
+        print('video_content',video_content)
+
+    elif data['prompt_type'] == 'detail':
+        print(data['detail_topic'])
+        content = 'test'
+
+
+    
 
     # print(content)
-    content = '<h1>Pacific Ocean (near Kiribati)</h1> \
-                    <p> \
-                        <ul> \
-                            <li>This location is in the central Pacific Ocean, far from any major landmass.</li> \
-                            <li>The nearest land is part of the Republic of Kiribati, a nation consisting of 33 atolls and reef islands.</li> \
-                            <li>Kiribati is known for being one of the first countries to see the sunrise each day.</li> \
-                            <li>The surrounding waters are home to diverse marine life, including many species of fish and coral.</li> \
-                            <li>Kiribati was a significant site during World War II, particularly during the Battle of Tarawa.</li> \
-                        </ul> \
-                    </p>'
-    return jsonify({'content': content})
+    # content = '<h1>Pacific Ocean (near Kiribati)</h1> \
+    #                 <p> \
+    #                     <ul> \
+    #                         <li>This location is in the central Pacific Ocean, far from any major landmass.</li> \
+    #                         <li>The nearest land is part of the Republic of Kiribati, a nation consisting of 33 atolls and reef islands.</li> \
+    #                         <li>Kiribati is known for being one of the first countries to see the sunrise each day.</li> \
+    #                         <li>The surrounding waters are home to diverse marine life, including many species of fish and coral.</li> \
+    #                         <li>Kiribati was a significant site during World War II, particularly during the Battle of Tarawa.</li> \
+    #                     </ul> \
+    #                 </p>'
+
+    return jsonify({'main_content': main_content, 'video_content': video_content})
 
 
 def get_gpt_info(prompt):
@@ -63,7 +91,7 @@ def get_gpt_info(prompt):
         messages=[
             {
                 "role": "system",
-                "content": "You are a helpful assistant that knows history and geography very well and can identify locations by coordinates."
+                "content": "You are an expert assistant specializing in global geography, history, and cultural information. You have comprehensive knowledge of locations worldwide, including their coordinates, historical significance, cultural landmarks, and current socio-economic conditions. When given coordinates or a location name, you can provide detailed, accurate information about that place, including its geography, climate, notable events, and interesting facts. You're also able to compare different locations and discuss how they've changed over time."
             },
             {
                 "role": "user",
@@ -86,7 +114,7 @@ def get_location_name(latitude, longitude):
             return 1, place_name
     else:
         return 0, "Error fetching location name"
-    
+
 if __name__ == '__main__':
     server = Server(app.wsgi_app)
     server.serve(port=PORT, host='127.0.0.1', debug=True)
