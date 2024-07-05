@@ -31,7 +31,7 @@ def get_xml_contents(xml_file, xml_tag):
     return contents
 
 def get_gpt_info(prompt):
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model='gpt-4o',
         messages=[
             {
@@ -45,7 +45,8 @@ def get_gpt_info(prompt):
         ],
         max_tokens=300
     )
-    return response['choices'][0]['message']['content']
+
+    return response.choices[0].message.content
 
 def get_location_name(latitude, longitude):
     url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{longitude},{latitude}.json?access_token={mapbox_token}&types=place,region"
@@ -55,10 +56,8 @@ def get_location_name(latitude, longitude):
         place_name = None
         region_name = None
         country_name = None
-        print(data)
         if data['features']:
             for feature in data['features']:
-                print(feature)
                 if 'place' in feature['place_type']:
                     place_name = feature['text']
                 elif 'region' in feature['place_type']:
@@ -123,7 +122,8 @@ def coordinates():
         # loc_type_wording changes based on whether the location is known or unknown
         if loc_result == 1:
             prompt_main = prompt_main.replace('[loc_type_wording]', loc_name + '(coordinates at ' + coordinates + ')')
-            video_link = get_video_link(loc_name)
+            # video_link = get_video_link(loc_name)
+            video_link = 'https://www.youtube.com/embed/2LSyizrk8-0'
             if video_link != 'No video found':
                 video_content = f'<iframe class="video_container" src="{video_link}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
             else:
@@ -146,7 +146,6 @@ def coordinates():
         video_content = 'test'
 
 
-    # print(content)
     main_content = '<h1>Pacific Ocean (near Kiribati)</h1> \
                     <p> \
                         <ul> \

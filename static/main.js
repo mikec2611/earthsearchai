@@ -46,6 +46,7 @@ function displayInfoInPanel(content) {
         const sidePanel = document.querySelector('.side-panel');
         sidePanel.style.transform = 'translateX(0)';
         $('#map').css('margin-left', '10%');
+        $('#map_rotate_btns').css('margin-left', '10%');
         map.resize();
         isPanelShown = true;
     }
@@ -69,11 +70,27 @@ function spinGlobe() {
     }
 }
 
+function highlight_active_marker(markerId) {
+    document.querySelectorAll('.marker').forEach(markerEl => {
+        markerEl.classList.remove('active_marker');
+    });
+
+    document.querySelectorAll('.marker_button').forEach(buttonEl => {
+        buttonEl.classList.remove('active_marker');
+    });
+
+    $('#marker_' + markerId).addClass('active_marker');
+    $('#marker_button_' + markerId).addClass('active_marker');
+}
+
 
 // Function to create an event listener for a marker
 function createMarkerClickListener(markerId) {
     return function(e) {
         e.stopPropagation(); // Prevent the map click event from firing
+
+        highlight_active_marker(markerId)
+
         showMarkerInfo(markerId); // Show information for this marker
     };
 }
@@ -89,16 +106,18 @@ function showMarkerInfo(markerId) {
 }
 
 // Modified addMarkerAtClick function to include marker click listener with correct ID
-function addMarkerAtClick(event, content) {
+function addMarkerAtClick(event, content, location_title) {
     clickCounter++; // Increment the counter for each click
 
     // Create a marker element
     const markerEl = document.createElement('div');
+    markerEl.id = 'marker_' + clickCounter;
     markerEl.className = 'marker';
     markerEl.textContent = clickCounter; // Set the marker number
 
     // Add an event listener to the marker with the correct ID
     markerEl.addEventListener('click', createMarkerClickListener(clickCounter));
+    markerEl.title = location_title;
 
     // Assuming you're using Mapbox GL JS to add the marker to the map
     new mapboxgl.Marker(markerEl)
@@ -117,15 +136,18 @@ function addMarkerAtClick(event, content) {
 
 function addButtonForMarker(markerID, locationTitle, longitude, latitude, video_content) {
     const button = document.createElement('button');
+    button.id = 'marker_button_' + markerID;
     button.classList.add('marker_button');
     button.textContent = markerID + ' - ' + locationTitle; // Set the button text to the marker ID
     button.setAttribute('data-video-content', video_content);
+    button.setAttribute('type', 'button')
     document.querySelector('.side-panel-column').appendChild(button);
 
     // Optional: Add event listener for button
     button.addEventListener('click', () => {
         showMarkerInfo(markerID);
         map.flyTo({center: [longitude, latitude]});
+        highlight_active_marker(markerID)
         embed_loc_video(button.getAttribute('data-video-content'));
     });
 }
@@ -228,9 +250,10 @@ map.on('click', function(e) {
 
                 // set marker
                 let location_title = reponse_main_content.querySelector('h1').textContent;
-                clickCounter = addMarkerAtClick(e, main_content);
+                clickCounter = addMarkerAtClick(e, main_content, location_title);
                 addButtonForMarker(clickCounter, location_title, e.lngLat.lng, e.lngLat.lat, video_content);
-                
+                highlight_active_marker(clickCounter)
+
                 // video embed;
                 embed_loc_video(video_content)
                 

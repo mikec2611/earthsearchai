@@ -1,6 +1,29 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Play:wght@400;500;700&display=swap');
 
+:root {
+    /* --marker-color: #ff761a; */
+    --marker-color:rgb(16, 73, 13);
+    --marker-hover-color: rgb(31, 146, 25);
+    --marker-text-color: white;
+    --marker-border-color:white;
+
+    --active-marker-color:#41a0da;
+
+    --marker-button-color: rgb(16, 73, 13);
+    --marker-button-hover-color:rgb(31, 146, 25);
+    --marker-button-active-color:rgb(31, 146, 25);
+    --marker-button-text-color:white;
+
+    --side-panel-color:rgb(208, 208, 208);
+    --side-panel-text-color:rgb(0, 0, 0);
+
+    --add-info-button-color: rgb(16, 73, 13);
+    --add-info-button-hover-color: #296b94;
+    --add-info-button-active-color: #296b94;    
+    --add-info-button-text-color: white;
+}
+
 body { 
     font-family: 'Play', sans-serif;
     font-weight:bold;
@@ -15,21 +38,31 @@ body {
     transition: margin-left 300ms ease-in-out;
 }
 
+/* Adjusted for relative units */
 .marker {
-    background-color: #ff4757;
-    color: #ffffff;
-    border-radius: 50%;
-    padding: 5px 10px;
+    display:flex;
+    background-color: var(--marker-color);
+    color: var(--marker-text-color);
+    justify-content:center;
+    align-items:center;
+    border:1px solid var(--marker-border-color);
+    width: 2.5em;
+    height:2.5em;
+    border-radius: 50%; /* This might stay as a percentage since it's relative to itself */
+    /* padding: 0.5em 0.5em; */
     text-align: center;
-    font-size: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 0.75em;
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.2), 0 0.0625em 0.125em rgba(0, 0, 0, 0.5);
+    text-shadow: 0.0625em 0.0625em 0.125em rgba(0, 0, 0, 0.5);
     cursor: pointer;
 }
 .marker:hover {
-    background-color: #f28585;
+    background-color: var(--marker-hover-color);
 }
 
+.active_marker{
+    background-color: var(--active-marker-color) !important;
+}
 
 button[disabled] {
     opacity: 0.5;
@@ -38,13 +71,13 @@ button[disabled] {
 
 #map_rotate_btns{
     position: fixed;
-    top: 10px;
-    left: 57.5%;
+    top: 1%;
+    left: 47.5%;
 }
 
 .map_rotate_btn{
-    font-size: 24px; 
-    padding: 10px;
+    font-size: 1em; 
+    padding: 0.5em;
     cursor: pointer;
 }
 
@@ -54,7 +87,7 @@ button[disabled] {
 }
 
 .side-panel {
-    background: linear-gradient(135deg, #1c1ebf, #a4e3f4);
+    background: var(--side-panel-color);
     box-shadow: 5px 0 15px rgba(0,0,0,0.2);
     overflow-y: auto; 
     z-index: 10; 
@@ -64,29 +97,34 @@ button[disabled] {
     left: 0;
     height: 100%;
     width: 22%;
-    min-width:365px;
+    /* min-width:365px; */
     transform: translateX(-100%);
     border-right: 2px solid #fff;
-    color: #fff;
+    color: var(--side-panel-text-color);
     display: flex;
     flex-direction: column;
-    padding: 10px;
+    padding: 0.5%;
+    padding-top:0;
 }
 
 #content_container {
-    height: 40%;
+    /* height: 40%; */
+    font-size:0.8em;
 }
+
 
 #loc_video{
     height:30%;
-    margin-bottom:20px;
+    margin-bottom:1%;
+    min-width:200px;
+    min-height:200px;
 }
 
 .video_container{
     width:99%;
     height:99%;
     text-align:center;
-    font-size:30px;
+    /* font-size:30px; */
     font-weight:bold;
 }
 
@@ -95,7 +133,7 @@ button[disabled] {
     width:100%;
     padding-bottom:10px;
     font-weight:bold;
-    font-size:30px;
+    font-size:1em;
 }
 
 #add_info_buttons{
@@ -103,9 +141,9 @@ button[disabled] {
 }
 
 #add_info_container{
-    margin-top:10px;
+    margin-top:1%;
     height:13%;
-    background-color:gray
+    /* background-color:gray */
 }
 
 .side-panel-column {
@@ -115,7 +153,7 @@ button[disabled] {
 }
 
 .side-panel ul li {
-    margin-bottom: 40px;
+    margin-bottom: 0.5em;
 }
 
 #add_info_buttons {
@@ -128,9 +166,10 @@ button[disabled] {
 }
 
 .info_button {
-    width: 30%; /* Set a fixed width for all buttons */
-    height: 50px; /* Adjust the height as needed */
-    background-color: #2011fa; /* Example background color */
+    width: 30%; 
+    height: 40%; 
+    background-color: var(--add-info-button-color);
+    color: var(--add-info-button-text-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -142,45 +181,46 @@ button[disabled] {
 }
 
 .info_button:hover {
-    transform: translateY(-2px); /* Slight lift effect on hover */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
-    background-color: #2d96d7; /* Example background color */
+    transform: translateY(-0.1em); /* Slight lift effect on hover */
+    box-shadow: 0 0.2em 0.3em rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
+    background-color: var(--add-info-button-hover-color) /* Example background color */
 }
 
 .info_button:active {
-    transform: translateY(4px); /* Move the button down to mimic a press effect */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
-    background-color: #1e0fd1; /* Darken the background color to indicate active state */
+    transform: translateY(0.2em); /* Move the button down to mimic a press effect */
+    box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
+    background-color: var(--add-info-button-active-color); /* Darken the background color to indicate active state */
 }
 
 .marker_button {
-    max-width: 250px;
-    height: 40px; 
+    max-width: 200px;
+    height: 5%; 
     display: flex;
     justify-content: center;
     align-items: center; 
-    border-radius: 5px;
-    margin-bottom:10px;
+    border-radius: 0.5em;
+    margin-bottom:0.2em;
     cursor: pointer;
-    font-size: 16px;
-    background-color: #ff4757;
-    padding: 12px;
+    font-size: 0.75em;
+    background-color: var(--marker-button-color);
+    color: var(--marker-button-text-color);
+    padding: 2%;
     font-weight: bold;
     overflow: hidden;
     text-wrap: nowrap;
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
 }
 
-.marker-button:hover {
-    background-color: #f28585; 
-    transform: translateY(-2px); /* Slight lift effect on hover */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
+.marker_button:hover {
+    background-color: var(--marker-button-hover-color);
+    transform: translateY(-0.0.5em); /* Slight lift effect on hover */
+    box-shadow: 0 0.2em 0.3em rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
 }
 
-.marker-button:active {
-    transform: translateY(4px); /* Move the button down to mimic a press effect */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
-    background-color: #7a1111; /* Darken the background color to indicate active state */
+.marker_button:active {
+    transform: translateY(0.05em); /* Move the button down to mimic a press effect */
+    box-shadow: 0 0.05em 0.1em rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
+    background-color: var(--marker-button-active-color) /* Darken the background color to indicate active state */
 }
 
 #loadingIndicator {
