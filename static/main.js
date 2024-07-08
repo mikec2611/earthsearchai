@@ -3,11 +3,9 @@ const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v11',
     projection: 'globe', 
-    zoom: 1.5,
+    zoom: 2.5,
     center: [-90, 40]
 });
-
-
 
 map.on('wheel', () => {
     userInteracting = true;
@@ -29,6 +27,7 @@ map.on('style.load', () => {
     map.setFog({'horizon-blend': 0.08}); 
 });
 
+
 const secondsPerRevolution = 120;
 const maxSpinZoom = 5;
 const slowSpinZoom = 3;
@@ -45,9 +44,9 @@ function displayInfoInPanel(content) {
     if (!isPanelShown) {
         const sidePanel = document.querySelector('.side-panel');
         sidePanel.style.transform = 'translateX(0)';
-        $('#map').css('margin-left', '10%');
-        $('#map_rotate_btns').css('margin-left', '10%');
-        map.resize();
+        // $('#map').css('margin-left', '10%');
+        // $('#map_rotate_btns').css('margin-left', '10%');
+        // map.resize();
         isPanelShown = true;
     }
 }
@@ -149,7 +148,7 @@ function addButtonForMarker(markerID, locationTitle, longitude, latitude, video_
     button.textContent = markerID + ' - ' + locationTitle; // Set the button text to the marker ID
     button.setAttribute('data-video-content', video_content);
     button.setAttribute('type', 'button')
-    document.querySelector('.side-panel-column').appendChild(button);
+    document.querySelector('.locaton_history').appendChild(button);
 
     // Optional: Add event listener for button
     button.addEventListener('click', () => {
@@ -281,7 +280,6 @@ document.getElementById('location_search').addEventListener('keypress', function
     if (event.key === 'Enter') {
         const searchTerm = this.value;
         if (!searchTerm) {
-            alert('Please enter a search term.');
             return;
         }
 
@@ -297,8 +295,10 @@ document.getElementById('location_search').addEventListener('keypress', function
                     });
                     const lngLat = {lng: longitude, lat: latitude};
                     run_location_process(lngLat);
+                    this.value = '';
                 } else { 
-                    alert('Location not found.');
+                    console.log('Location not found');
+                    this.value = '';
                 }
             })
             .catch(error => console.log('Error fetching location:', error));
@@ -320,6 +320,19 @@ document.getElementById('pauseButton').addEventListener('click', function() {
 
 
 function run_location_process(lngLat){
+    const foundLocation = savedLocations.find(location => 
+        location.lngLat.lat === lngLat.lat && location.lngLat.lng === lngLat.lng
+      );
+    if (foundLocation) {
+        map.flyTo({
+            center: foundLocation.lngLat,
+            essential: true
+        });
+        highlight_active_marker(foundLocation.id)
+        showMarkerInfo(foundLocation.id);
+        return;
+    }
+
     $.ajax({
         url: '/coordinates',
         type: 'POST',

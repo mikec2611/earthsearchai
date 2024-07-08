@@ -2,7 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Play:wght@400;500;700&display=swap');
 
 :root {
-    /* --marker-color: #ff761a; */
     --marker-color:rgb(16, 73, 13);
     --marker-hover-color: rgb(31, 146, 25);
     --marker-text-color: white;
@@ -16,7 +15,7 @@
     --marker-button-text-color:white;
 
     --side-panel-color:rgb(208, 208, 208);
-    --side-panel-text-color:rgb(0, 0, 0);
+    --side-panel-text-color:rgb(255, 255, 255);
 
     --add-info-button-color: rgb(16, 73, 13);
     --add-info-button-hover-color: #296b94;
@@ -35,10 +34,8 @@ body {
     top: 0; 
     bottom: 0; 
     width: 100%; 
-    transition: margin-left 300ms ease-in-out;
 }
 
-/* Adjusted for relative units */
 .marker {
     display:flex;
     background-color: var(--marker-color);
@@ -48,8 +45,7 @@ body {
     border:1px solid var(--marker-border-color);
     width: 2.5em;
     height:2.5em;
-    border-radius: 50%; /* This might stay as a percentage since it's relative to itself */
-    /* padding: 0.5em 0.5em; */
+    border-radius: 50%;
     text-align: center;
     font-size: 0.75em;
     box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.2), 0 0.0625em 0.125em rgba(0, 0, 0, 0.5);
@@ -87,8 +83,6 @@ button[disabled] {
 }
 
 .side-panel {
-    background: var(--side-panel-color);
-    box-shadow: 5px 0 15px rgba(0,0,0,0.2);
     overflow-y: auto; 
     z-index: 10; 
     transition: transform 0.3s ease-in-out;
@@ -97,9 +91,7 @@ button[disabled] {
     left: 0;
     height: 100%;
     width: 22%;
-    /* min-width:365px; */
     transform: translateX(-100%);
-    border-right: 2px solid #fff;
     color: var(--side-panel-text-color);
     display: flex;
     flex-direction: column;
@@ -108,8 +100,7 @@ button[disabled] {
 }
 
 #content_container {
-    /* height: 40%; */
-    font-size:0.8em;
+    font-size:1.2em;
 }
 
 
@@ -124,7 +115,6 @@ button[disabled] {
     width:99%;
     height:99%;
     text-align:center;
-    /* font-size:30px; */
     font-weight:bold;
 }
 
@@ -143,25 +133,24 @@ button[disabled] {
 #add_info_container{
     margin-top:1%;
     height:13%;
-    /* background-color:gray */
 }
 
-.side-panel-column {
+.locaton_history {
    position:absolute;
-   left:24%;
-   top:10px;
+   right:3.5%;
+   top:6%;
 }
 
 .side-panel ul li {
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
 }
 
 #add_info_buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 0px 10px; /* Adjust the space between the buttons */
-    justify-content: center; /* Center flex items horizontally */
-    margin: 0 auto; /* Center the container itself */
+    gap: 0px 10px;
+    justify-content: center;
+    margin: 0 auto;
     width: fit-content;
 }
 
@@ -175,31 +164,31 @@ button[disabled] {
     align-items: center;
     text-align: center;
     font-size:0.9em;
-    cursor:pointer;border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth effect */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+    cursor:pointer;border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .info_button:hover {
-    transform: translateY(-0.1em); /* Slight lift effect on hover */
-    box-shadow: 0 0.2em 0.3em rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
-    background-color: var(--add-info-button-hover-color) /* Example background color */
+    transform: translateY(-0.1em);
+    box-shadow: 0 0.2em 0.3em rgba(0, 0, 0, 0.3);
+    background-color: var(--add-info-button-hover-color)
 }
 
 .info_button:active {
-    transform: translateY(0.2em); /* Move the button down to mimic a press effect */
-    box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
-    background-color: var(--add-info-button-active-color); /* Darken the background color to indicate active state */
+    transform: translateY(0.2em);
+    box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.2);
+    background-color: var(--add-info-button-active-color);
 }
 
 .marker_button {
-    /* max-width: 200px; */
+    width: 127%;
     height: 5%; 
     display: flex;
     justify-content: center;
     align-items: center; 
     border-radius: 0.5em;
-    margin-bottom:0.2em;
+    margin-bottom:0.3em;
     cursor: pointer;
     font-size: 1em;
     background-color: var(--marker-button-color);
@@ -208,26 +197,27 @@ button[disabled] {
     font-weight: bold;
     overflow: hidden;
     text-wrap: nowrap;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .marker_button:hover {
     background-color: var(--marker-button-hover-color);
-    transform: translateY(-0.0.5em); /* Slight lift effect on hover */
-    box-shadow: 0 0.2em 0.3em rgba(0, 0, 0, 0.3); /* Increased shadow on hover */
+    transform: translateY(-0.0.5em);
+    box-shadow: 0 0.2em 0.3em rgba(0, 0, 0, 0.3);
 }
 
 .marker_button:active {
-    transform: translateY(0.05em); /* Move the button down to mimic a press effect */
-    box-shadow: 0 0.05em 0.1em rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
-    background-color: var(--marker-button-active-color) /* Darken the background color to indicate active state */
+    transform: translateY(0.05em);
+    box-shadow: 0 0.05em 0.1em rgba(0, 0, 0, 0.2);
+    background-color: var(--marker-button-active-color)
 }
 
 #location_search {
     border-radius: 5px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     padding:5px;
-    font-size:1.5em;
+    font-size:1.65em;
+    font-family: 'Play', sans-serif;
 }
 
 .input_icon {
