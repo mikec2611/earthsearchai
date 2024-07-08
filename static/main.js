@@ -89,6 +89,12 @@ function createMarkerClickListener(markerId) {
     return function(e) {
         e.stopPropagation(); // Prevent the map click event from firing
 
+        // Fly to the marker location
+        const markerInfo = savedLocations.find(location => location.id === markerId);
+        map.flyTo({
+            center: markerInfo.lngLat,
+            essential: true // this animation is considered essential with respect to prefers-reduced-motion
+        });
         highlight_active_marker(markerId)
 
         showMarkerInfo(markerId); // Show information for this marker
@@ -106,7 +112,7 @@ function showMarkerInfo(markerId) {
 }
 
 // Modified addMarkerAtClick function to include marker click listener with correct ID
-function addMarkerAtClick(event, content, location_title) {
+function addMarkerAtClick(lngLat, content, location_title) {
     clickCounter++; // Increment the counter for each click
 
     // Create a marker element
@@ -121,13 +127,15 @@ function addMarkerAtClick(event, content, location_title) {
 
     // Assuming you're using Mapbox GL JS to add the marker to the map
     new mapboxgl.Marker(markerEl)
-        .setLngLat(event.lngLat) // Set marker position to click location
+        .setLngLat(lngLat) // Set marker position to click location
         .addTo(map);
+
+    map.flyTo({center: [lngLat.lng, lngLat.lat]});
 
     // Save the clicked location with the marker ID
     savedLocations.push({
         id: clickCounter,
-        lngLat: event.lngLat,
+        lngLat: lngLat,
         content: content
     });
 
@@ -233,40 +241,7 @@ map.on('click', function(e) {
     clearTimeout(debounceTimer);
     document.getElementById('loadingIndicator').style.display = 'block';
     debounceTimer = setTimeout(() => {
-        $.ajax({
-            url: '/coordinates',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ 'lat': e.lngLat.lat, 
-                                    'lng': e.lngLat.lng, 
-                                    'prompt_type': 'general',  
-                                    'detail_topic': 'general' 
-                                }),
-            success: function(response) {
-                let parser = new DOMParser();
-                main_content = response.main_content
-                let reponse_main_content = parser.parseFromString(main_content, "text/html");
-                video_content = response.video_content
-
-                // set marker
-                let location_title = reponse_main_content.querySelector('h1').textContent;
-                clickCounter = addMarkerAtClick(e, main_content, location_title);
-                addButtonForMarker(clickCounter, location_title, e.lngLat.lng, e.lngLat.lat, video_content);
-                highlight_active_marker(clickCounter)
-
-                // video embed;
-                embed_loc_video(video_content)
-                
-                // display main_content
-                displayInfoInPanel(main_content)
-                
-                document.getElementById('loadingIndicator').style.display = 'none';
-            },
-            error: function(error) {
-                console.log(error);
-                document.getElementById('loadingIndicator').style.display = 'none';
-            }
-        });
+        run_location_process(e.lngLat)
     }, 500);
 });
 
@@ -301,6 +276,35 @@ $('.info_button').on('click', function(e) {
     }, 500);
 });
 
+
+document.getElementById('location_search').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        const searchTerm = this.value;
+        if (!searchTerm) {
+            alert('Please enter a search term.');
+            return;
+        }
+
+        // Use Mapbox Geocoding API to search for the location
+        fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchTerm)}.json?access_token=${mapboxgl.accessToken}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.features && data.features.length > 0) {
+                    const [longitude, latitude] = data.features[0].center;
+                    map.flyTo({
+                        center: [longitude, latitude],
+                        essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                    });
+                    const lngLat = {lng: longitude, lat: latitude};
+                    run_location_process(lngLat);
+                } else { 
+                    alert('Location not found.');
+                }
+            })
+            .catch(error => console.log('Error fetching location:', error));
+    }
+});
+
 document.getElementById('playButton').addEventListener('click', function() {
     startRotation();
     spinGlobe();
@@ -313,5 +317,42 @@ document.getElementById('pauseButton').addEventListener('click', function() {
     this.setAttribute('disabled', '');
     document.getElementById('playButton').removeAttribute('disabled');
 });
+
+
+function run_location_process(lngLat){
+    $.ajax({
+        url: '/coordinates',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 'lat': lngLat.lat, 
+                                'lng': lngLat.lng, 
+                                'prompt_type': 'general',  
+                                'detail_topic': 'general' 
+                            }),
+        success: function(response) {
+            let parser = new DOMParser();
+            main_content = response.main_content
+            let reponse_main_content = parser.parseFromString(main_content, "text/html");
+            video_content = response.video_content
+
+            // set marker
+            let location_title = reponse_main_content.querySelector('h1').textContent;
+            clickCounter = addMarkerAtClick(lngLat, main_content, location_title);
+            addButtonForMarker(clickCounter, location_title, lngLat.lng, lngLat.lat, video_content);
+            highlight_active_marker(clickCounter)
+
+            // video embed;
+            embed_loc_video(video_content)
+            
+            // display main_content
+            displayInfoInPanel(main_content)
+            document.getElementById('loadingIndicator').style.display = 'none';
+        },
+        error: function(error) {
+            console.log(error);
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+    });
+}
 
 spinGlobe();

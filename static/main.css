@@ -193,7 +193,7 @@ button[disabled] {
 }
 
 .marker_button {
-    max-width: 200px;
+    /* max-width: 200px; */
     height: 5%; 
     display: flex;
     justify-content: center;
@@ -201,7 +201,7 @@ button[disabled] {
     border-radius: 0.5em;
     margin-bottom:0.2em;
     cursor: pointer;
-    font-size: 0.75em;
+    font-size: 1em;
     background-color: var(--marker-button-color);
     color: var(--marker-button-text-color);
     padding: 2%;
@@ -221,6 +221,28 @@ button[disabled] {
     transform: translateY(0.05em); /* Move the button down to mimic a press effect */
     box-shadow: 0 0.05em 0.1em rgba(0, 0, 0, 0.2); /* Reduce the shadow to enhance the pressed effect */
     background-color: var(--marker-button-active-color) /* Darken the background color to indicate active state */
+}
+
+#location_search {
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    padding:5px;
+    font-size:1.5em;
+}
+
+.input_icon {
+    position: absolute;
+    top: 1%; 
+    right: 1%; 
+    z-index: 1000;
+    display:inline-block;
+   
+}
+
+.input_icon i {
+    font-size:1.5em;
+    color: #ccc;
+    margin-right:5px;
 }
 
 #loadingIndicator {
