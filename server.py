@@ -1,20 +1,24 @@
-import openai
+
 import requests
 import xml.etree.ElementTree as ET
 import re
 
+
+from openai import OpenAI
+from bs4 import BeautifulSoup
 from os import getenv
 from livereload import Server
 from flask import Flask, render_template, jsonify, request
 from googleapiclient.discovery import build
 
-openai.organization = getenv("0p3n4I_ORG")
-openai.api_key = getenv("0p3n4I_PROJ")
+# openai.organization = getenv("0p3n4I_ORG")
+# openai.api_key = getenv("0p3n4I_PROJ")
 mapbox_token = getenv('MAPBOX_TOKEN')
 google_api_key = getenv('G00GL3_API_K3Y')
 PORT = 8000
 
 app = Flask(__name__)
+client = OpenAI()
 
 def get_xml_contents(xml_file, xml_tag):
     tree = ET.parse(xml_file)
@@ -31,7 +35,7 @@ def get_xml_contents(xml_file, xml_tag):
     return contents
 
 def get_gpt_info(prompt):
-    response = openai.chat.completions.create(
+    response = client.chat.completions.create(
         model='gpt-4o',
         messages=[
             {
@@ -85,13 +89,14 @@ def get_location_name(latitude, longitude):
         return 0, "Error fetching location name"
 
 def get_video_link(search_video_desc):
-    search_video_desc = search_video_desc + ' travel guide'
+    search_video_desc = search_video_desc
     youtube = build('youtube', 'v3', developerKey=google_api_key)
     request = youtube.search().list(
         part="snippet",
         maxResults=1,
         q=search_video_desc,
-        type="video"
+        type="video",
+        videoCategoryId="19"
     )
     response = request.execute()
     
@@ -102,6 +107,16 @@ def get_video_link(search_video_desc):
     else:
         return "No video found"
 
+def get_video_link_main_content(main_content):
+    html_response = BeautifulSoup(main_content, 'html.parser')
+    main_content_loc = html_response.find('h1').text.strip() if html_response else 0
+    if main_content_loc != 0: 
+        video_link = get_video_link(main_content_loc)
+        if video_link != 'No video found':
+            video_content = f'<iframe class="video_container" src="{video_link}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+            return video_content
+    
+    return 'No video found'
 
 @app.route('/')
 def home():
@@ -114,31 +129,35 @@ def coordinates():
     lng = round(data['lng'], 3)
     coordinates = str(lat) + ', ' + str(lng)
     loc_result, loc_name = get_location_name(lat, lng)
-    print(loc_name)
+    print(loc_name, coordinates)
 
     if data['prompt_type'] == 'general':
         prompt_main = get_xml_contents('prompts.xml', 'prompt_main')
 
-        # loc_type_wording changes based on whether the location is known or unknown
         if loc_result == 1:
             prompt_main = prompt_main.replace('[loc_type_wording]', loc_name + '(coordinates at ' + coordinates + ')')
-            # video_link = get_video_link(loc_name)
-            video_link = 'https://www.youtube.com/embed/2LSyizrk8-0'
+        else:
+            prompt_main = prompt_main.replace('[loc_type_wording]', 'the location at coordinates:' +  coordinates)
+            
+        main_content = get_gpt_info(prompt_main)
+
+        video_content = '<div class="video_container">No video found for this location.</div>'
+        if loc_result == 1:
+            # video_link = 'https://www.youtube.com/embed/2LSyizrk8-0'
+            video_link = get_video_link(loc_name) # try to get video from location name
             if video_link != 'No video found':
                 video_content = f'<iframe class="video_container" src="{video_link}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
             else:
-                video_content = '<div class="video_container">No video found for this location.</div>'
+                main_content_video_link = get_video_link_main_content(main_content) # try to get video from main_content location name
+                if main_content_video_link != 'No video found':
+                    video_content = main_content_video_link
         else:
-            prompt_main = prompt_main.replace('[loc_type_wording]', 'the location at coordinates:' +  coordinates)
-            video_content = '<div class="video_container">No video found for this location.</div>'
-
-
-        # main_content = get_gpt_info(prompt_main)
+            main_content_video_link = get_video_link_main_content(main_content) # try to get video from main_content location name
+            if main_content_video_link != 'No video found':
+                video_content = main_content_video_link
             
-
         # print(video_content)
         # print('main_content',main_content)
-
 
     elif data['prompt_type'] == 'detail':
         print(data['detail_topic'])
@@ -146,16 +165,16 @@ def coordinates():
         video_content = 'test'
 
 
-    main_content = '<h1>Pacific Ocean (near Kiribati)</h1> \
-                    <p> \
-                        <ul> \
-                            <li>This location is in the central Pacific Ocean, far from any major landmass.</li> \
-                            <li>The nearest land is part of the Republic of Kiribati, a nation consisting of 33 atolls and reef islands.</li> \
-                            <li>Kiribati is known for being one of the first countries to see the sunrise each day.</li> \
-                            <li>The surrounding waters are home to diverse marine life, including many species of fish and coral.</li> \
-                            <li>Kiribati was a significant site during World War II, particularly during the Battle of Tarawa.</li> \
-                        </ul> \
-                    </p>'
+    # main_content = '<h1>Pacific Ocean (near Kiribati)</h1> \
+    #                 <p> \
+    #                     <ul> \
+    #                         <li>This location is in the central Pacific Ocean, far from any major landmass.</li> \
+    #                         <li>The nearest land is part of the Republic of Kiribati, a nation consisting of 33 atolls and reef islands.</li> \
+    #                         <li>Kiribati is known for being one of the first countries to see the sunrise each day.</li> \
+    #                         <li>The surrounding waters are home to diverse marine life, including many species of fish and coral.</li> \
+    #                         <li>Kiribati was a significant site during World War II, particularly during the Battle of Tarawa.</li> \
+    #                     </ul> \
+    #                 </p>'
 
     return jsonify({'main_content': main_content, 'video_content': video_content})
 
