@@ -2,19 +2,19 @@
 import requests
 import xml.etree.ElementTree as ET
 import re
+import os
 
 
 from openai import OpenAI
 from bs4 import BeautifulSoup
-from os import getenv
 from livereload import Server
 from flask import Flask, render_template, jsonify, request
 from googleapiclient.discovery import build
+from dotenv import load_dotenv
 
-# openai.organization = getenv("0p3n4I_ORG")
-# openai.api_key = getenv("0p3n4I_PROJ")
-mapbox_token = getenv('MAPBOX_TOKEN')
-google_api_key = getenv('G00GL3_API_K3Y')
+load_dotenv()
+mapbox_token = os.environ.get('MAPBOX_TOKEN')
+google_api_key = os.environ.get('G00GL3_API_K3Y')
 PORT = 8000
 
 app = Flask(__name__)
@@ -182,4 +182,4 @@ def coordinates():
 
 if __name__ == '__main__':
     server = Server(app.wsgi_app)
-    server.serve(port=PORT, host='127.0.0.1', debug=True)
+    server.serve(port=PORT, host='127.0.0.1', debug=False)
