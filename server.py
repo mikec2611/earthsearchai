@@ -129,7 +129,7 @@ def coordinates():
     lng = round(data['lng'], 3)
     coordinates = str(lat) + ', ' + str(lng)
     loc_result, loc_name = get_location_name(lat, lng)
-    print(loc_name, coordinates)
+    # print(loc_name, coordinates)
 
     if data['prompt_type'] == 'general':
         prompt_main = get_xml_contents('prompts.xml', 'prompt_main')

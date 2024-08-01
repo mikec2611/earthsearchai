@@ -29,6 +29,7 @@ map.on('style.load', () => {
 
 
 const secondsPerRevolution = 120;
+const secondsPerRevolutionFast = 2;
 const maxSpinZoom = 5;
 const slowSpinZoom = 3;
 
@@ -69,6 +70,12 @@ function spinGlobe() {
     }
 }
 
+function fastSpinGlobe() {
+    let distancePerSecond = 360 / secondsPerRevolutionFast;
+    const center = map.getCenter();
+    center.lng -= distancePerSecond;
+    map.easeTo({ center, duration: 1000, easing: (n) => n });
+}
 function highlight_active_marker(markerId) {
     document.querySelectorAll('.marker').forEach(markerEl => {
         markerEl.classList.remove('active_marker');
@@ -236,44 +243,65 @@ map.on('wheel', () => {
 });
 
 let debounceTimer;
+let isRunning = false;
 map.on('click', function(e) {
+    if (isRunning) {
+        return; // Exit if the function is already running
+    }
+
     clearTimeout(debounceTimer);
     document.getElementById('loadingIndicator').style.display = 'block';
-    debounceTimer = setTimeout(() => {
-        run_location_process(e.lngLat)
-    }, 500);
-});
 
-let debounceTimerInfo;
-$('.info_button').on('click', function(e) {
-    let detail_topic = $(this).text();
-    clearTimeout(debounceTimerInfo);
-    document.getElementById('loadingIndicator').style.display = 'block';
-    debounceTimerInfo = setTimeout(() => {
-        $.ajax({
-            url: '/coordinates',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ 'lat': 'detail', 
-                                    'lng': 'detail', 
-                                    'prompt_type': 'detail',  
-                                    'detail_topic': detail_topic 
-                                }),
-            success: function(response) {
-                // content = response.content
-                // let parser = new DOMParser();
-                // let doc = parser.parseFromString(content, "text/html");
-                // let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
-                
-                document.getElementById('loadingIndicator').style.display = 'none';
-            },
-            error: function(error) {
-                console.log(error);
-                document.getElementById('loadingIndicator').style.display = 'none';
-            }
+    debounceTimer = setTimeout(() => {
+        isRunning = true;
+
+        run_location_process(e.lngLat)
+        .then(result => {
+            isRunning = false; // Reset the flag when the function finishes
+            document.getElementById('loadingIndicator').style.display = 'none';
+        })
+        .catch(error => {
+            console.log(error);
+            isRunning = false; // Reset the flag when the function finishes
+            document.getElementById('loadingIndicator').style.display = 'none';
+        })
+        .finally(() => {
+            isRunning = false; // Reset the flag when the function finishes
+            document.getElementById('loadingIndicator').style.display = 'none';
         });
     }, 500);
 });
+
+// let debounceTimerInfo;
+// $('.info_button').on('click', function(e) {
+//     let detail_topic = $(this).text();
+//     clearTimeout(debounceTimerInfo);
+//     document.getElementById('loadingIndicator').style.display = 'block';
+//     debounceTimerInfo = setTimeout(() => {
+//         $.ajax({
+//             url: '/coordinates',
+//             type: 'POST',
+//             contentType: 'application/json',
+//             data: JSON.stringify({ 'lat': 'detail', 
+//                                     'lng': 'detail', 
+//                                     'prompt_type': 'detail',  
+//                                     'detail_topic': detail_topic 
+//                                 }),
+//             success: function(response) {
+//                 // content = response.content
+//                 // let parser = new DOMParser();
+//                 // let doc = parser.parseFromString(content, "text/html");
+//                 // let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
+                
+//                 document.getElementById('loadingIndicator').style.display = 'none';
+//             },
+//             error: function(error) {
+//                 console.log(error);
+//                 document.getElementById('loadingIndicator').style.display = 'none';
+//             }
+//         });
+//     }, 500);
+// });
 
 
 document.getElementById('location_search').addEventListener('keypress', function(event) {
@@ -294,7 +322,21 @@ document.getElementById('location_search').addEventListener('keypress', function
                         essential: true // this animation is considered essential with respect to prefers-reduced-motion
                     });
                     const lngLat = {lng: longitude, lat: latitude};
-                    run_location_process(lngLat);
+                    document.getElementById('loadingIndicator').style.display = 'block';
+                    run_location_process(lngLat)
+                    .then(result => {
+                        isRunning = false; // Reset the flag when the function finishes
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        isRunning = false; // Reset the flag when the function finishes
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                    })
+                    .finally(() => {
+                        isRunning = false; // Reset the flag when the function finishes
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                    });
                     this.value = '';
                 } else { 
                     console.log('Location not found');
@@ -318,53 +360,86 @@ document.getElementById('pauseButton').addEventListener('click', function() {
     document.getElementById('playButton').removeAttribute('disabled');
 });
 
+document.getElementById('randomButton').addEventListener('click', function() {
+    document.getElementById('loadingIndicator').style.display = 'block';
+
+    let spinInterval = setInterval(() => {
+        fastSpinGlobe();
+    }, 100); 
+
+    const randomLat = (Math.random() * 180) - 90;
+    const randomLng = (Math.random() * 360) - 180;
+    const randomCoordinates = { lat: randomLat, lng: randomLng };
+    run_location_process(randomCoordinates)
+    .then(result => {
+        isRunning = false; // Reset the flag when the function finishes
+        document.getElementById('loadingIndicator').style.display = 'none';
+        clearInterval(spinInterval);
+    })
+    .catch(error => {
+        console.log(error);
+        isRunning = false; // Reset the flag when the function finishes
+        document.getElementById('loadingIndicator').style.display = 'none';
+        clearInterval(spinInterval);
+    })
+    .finally(() => {
+        isRunning = false; // Reset the flag when the function finishes
+        document.getElementById('loadingIndicator').style.display = 'none';
+        clearInterval(spinInterval);
+    });
+});
+
+
 
 function run_location_process(lngLat){
-    const foundLocation = savedLocations.find(location => 
-        location.lngLat.lat === lngLat.lat && location.lngLat.lng === lngLat.lng
-      );
-    if (foundLocation) {
-        map.flyTo({
-            center: foundLocation.lngLat,
-            essential: true
-        });
-        highlight_active_marker(foundLocation.id)
-        showMarkerInfo(foundLocation.id);
-        return;
-    }
-
-    $.ajax({
-        url: '/coordinates',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ 'lat': lngLat.lat, 
-                                'lng': lngLat.lng, 
-                                'prompt_type': 'general',  
-                                'detail_topic': 'general' 
-                            }),
-        success: function(response) {
-            let parser = new DOMParser();
-            main_content = response.main_content
-            let reponse_main_content = parser.parseFromString(main_content, "text/html");
-            video_content = response.video_content
-
-            // set marker
-            let location_title = reponse_main_content.querySelector('h1').textContent;
-            clickCounter = addMarkerAtClick(lngLat, main_content, location_title);
-            addButtonForMarker(clickCounter, location_title, lngLat.lng, lngLat.lat, video_content);
-            highlight_active_marker(clickCounter)
-
-            // video embed;
-            embed_loc_video(video_content)
-            
-            // display main_content
-            displayInfoInPanel(main_content)
-            document.getElementById('loadingIndicator').style.display = 'none';
-        },
-        error: function(error) {
-            console.log(error);
-            document.getElementById('loadingIndicator').style.display = 'none';
+    return new Promise((resolve, reject) => {
+        const foundLocation = savedLocations.find(location => 
+            location.lngLat.lat === lngLat.lat && location.lngLat.lng === lngLat.lng
+        );
+        if (foundLocation) {
+            map.flyTo({
+                center: foundLocation.lngLat,
+                essential: true
+            });
+            highlight_active_marker(foundLocation.id)
+            showMarkerInfo(foundLocation.id);
+            return;
         }
+
+        $.ajax({
+            url: '/coordinates',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 'lat': lngLat.lat, 
+                                    'lng': lngLat.lng, 
+                                    'prompt_type': 'general',  
+                                    'detail_topic': 'general' 
+                                }),
+            success: function(response) {
+                let parser = new DOMParser();
+                main_content = response.main_content
+                let reponse_main_content = parser.parseFromString(main_content, "text/html");
+                video_content = response.video_content
+
+                // set marker
+                let location_title = reponse_main_content.querySelector('h1').textContent;
+                clickCounter = addMarkerAtClick(lngLat, main_content, location_title);
+                addButtonForMarker(clickCounter, location_title, lngLat.lng, lngLat.lat, video_content);
+                highlight_active_marker(clickCounter)
+
+                // video embed;
+                embed_loc_video(video_content)
+                
+                // display main_content
+                displayInfoInPanel(main_content)
+
+                resolve('Location processed successfully');
+            },
+            error: function(error) {
+                console.log(error);
+                reject('Error processing location');
+            }
+        });
     });
 }
 

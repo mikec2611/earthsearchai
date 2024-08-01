@@ -36,6 +36,20 @@ body {
     width: 100%; 
 }
 
+#app_title{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 100%;
+    padding: 10px 0;
+    font-size:3em;
+    text-align:center;
+    font-weight:bold;
+    color:white;
+}
+
 .marker {
     display:flex;
     background-color: var(--marker-color);
@@ -67,7 +81,7 @@ button[disabled] {
 
 #map_rotate_btns{
     position: fixed;
-    top: 1%;
+    top: 5%;
     left: 47.5%;
 }
 
@@ -116,6 +130,8 @@ button[disabled] {
     height:99%;
     text-align:center;
     font-weight:bold;
+    padding:2px;
+    background-color:rgb(255, 255, 255);
 }
 
 #add_info_header{
@@ -242,21 +258,55 @@ button[disabled] {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 100;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #loadingIndicator span {
     display: block;
-    margin-top: 10px;
-    color: #333;
-    font-size: 16px;
+    margin-top: 15px;
+    color: #555; /* Slightly lighter color */
+    font-size: 4em; /* Slightly larger font size */
+    font-weight: 500; /* Medium font weight */
 }
 
 .fas.fa-spinner.fa-spin {
-    color: #007bff;
-    font-size: 24px;
+    color: #007bff; /* Primary color */
+    font-size: 3em; /* Larger spinner */
+    animation: spin 1s linear infinite; /* Smooth spinning animation */
+}
+
+#randomButton{
+    background-color:#22e055;
+    border-color:#6ef996
+}
+#randomButton:active {
+    background-color: #073f0b; /* Change to your desired color */
+    transform: scale(0.95); /* Slightly scale down the button */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a shadow */
+}
+
+/* Keyframes for smooth spinning animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#openai_citation{
+    padding-bottom:10%;
+}
+#youtube_citation{
+    padding-top:0.5%;
+}
+.api_citation{
+    color:rgb(201, 201, 201);
+    font-size:0.7em;
+    text-align:right;
 }

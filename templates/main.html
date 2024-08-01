@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1,width=device-width">
         
-        <title>TITLE</title>
+        <title>EarthSearch.AI</title>
 
         <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
 
@@ -21,19 +21,32 @@
 
     <body>
         <div id="map"></div>
+        <div id="app_title">EarthSearch.ai</div>
         <div id="map_rotate_btns">
-            <button id="playButton" class="map_rotate_btn" title="Start globe rotation" disabled>
+            <button id="playButton" class="map_rotate_btn" title="Start Globe Rotation" disabled>
                 <i class="fas fa-play"></i>
             </button>
-            <button id="pauseButton" class="map_rotate_btn" title="Pause globe rotation" enabled>
+            <button id="pauseButton" class="map_rotate_btn" title="Pause Globe Rotation" enabled>
                 <i class="fas fa-pause"></i>
+            </button>
+            <button id="randomButton" class="map_rotate_btn" title="Show Random Location" enabled>
+                <i class="fas fa-random"></i>
             </button>
         </div>
         
         <div id="side-panel" class="side-panel">
             <div id="content_container"></div>
+            <div id="openai_citation" class="api_citation">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Results generated via OpenAI API. Results may vary.
+            </div>
             <div id="loc_video"></div>
-            <div id="add_info_header">Explore Topics</div>
+            <div id="youtube_citation" class="api_citation">
+                <i class="fas fa-exclamation-circle"></i>
+                Video sourced via Youtube API. Results may vary.
+            </div>
+
+            <!-- <div id="add_info_header">Explore Topics</div>
             <div id="add_info_buttons">
                 <div class="info_button">History</div>
                 <div class="info_button">Nature</div>
@@ -42,7 +55,7 @@
                 <div class="info_button">Attractions</div>
                 <div class="info_button">Travel</div>
             </div>
-            <div id="add_info_container"></div>
+            <div id="add_info_container"></div> -->
         </div>
         <div class="locaton_history"></div>
         
@@ -51,11 +64,12 @@
             <input type="text" id="location_search" placeholder="Search for a location...">
         </div>
     
-        <div id="loadingIndicator">
-            <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #007bff;"></i>
+        <div id="loadingIndicator" style="display:none">
+            <i class="fas fa-spinner fa-spin"></i>
             <span>Loading...</span>
         </div>
 
+        
         <script src="{{ url_for('static', filename='main.js') }}"></script>
     </body>
 </html>
