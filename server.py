@@ -12,7 +12,11 @@ from flask import Flask, render_template, jsonify, request
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
+# project_folder = os.path.expanduser('~/earthsearch')
+# load_dotenv(os.path.join(project_folder, '.env'))
+# prompt_xml_path = os.path.join(project_folder, 'prompts.xml')
 load_dotenv()
+prompt_xml_path = "prompts.xml"
 mapbox_token = os.environ.get('MAPBOX_TOKEN')
 google_api_key = os.environ.get('G00GL3_API_K3Y')
 PORT = 8000
@@ -132,7 +136,7 @@ def coordinates():
     # print(loc_name, coordinates)
 
     if data['prompt_type'] == 'general':
-        prompt_main = get_xml_contents('prompts.xml', 'prompt_main')
+        prompt_main = get_xml_contents(prompt_xml_path, 'prompt_main')
 
         if loc_result == 1:
             prompt_main = prompt_main.replace('[loc_type_wording]', loc_name + '(coordinates at ' + coordinates + ')')

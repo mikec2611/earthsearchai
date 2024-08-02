@@ -443,4 +443,9 @@ function run_location_process(lngLat){
     });
 }
 
+
+
+
+
+
 spinGlobe();
