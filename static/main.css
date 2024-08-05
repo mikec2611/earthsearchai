@@ -23,6 +23,46 @@
     --add-info-button-text-color: white;
 }
 
+@media (max-width: 1200px) {
+    body {
+        font-size: 14px;
+    }
+
+    .api_citation {
+        font-size: 0.65em;
+    }
+}
+
+@media (max-width: 992px) {
+    body {
+        font-size: 12px;
+    }
+
+    .api_citation {
+        font-size: 0.6em;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 10px;
+    }
+
+    .api_citation {
+        font-size: 0.55em;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        font-size: 8px;
+    }
+
+    .api_citation {
+        font-size: 0.5em;
+    }
+}
+
 body { 
     font-family: 'Play', sans-serif;
     font-weight:bold;
@@ -36,18 +76,19 @@ body {
     width: 100%; 
 }
 
-#app_title{
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+
+#app_title {
+    font-size: 2em; /* Adjust as needed */
+    background: #55beff;
+    -webkit-background-clip: text;
+    background-clip:text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     text-align: center;
-    width: 100%;
-    padding: 10px 0;
-    font-size:3em;
-    text-align:center;
-    font-weight:bold;
-    color:white;
+    z-index: 10;
+    padding-left: 1%;
+    padding-right: 1%;
+    position: absolute;
 }
 
 .marker {
@@ -80,8 +121,8 @@ button[disabled] {
 }
 
 #map_rotate_btns{
-    position: fixed;
-    top: 5%;
+    position:absolute;
+    top: 2%;
     left: 47.5%;
 }
 
@@ -101,9 +142,9 @@ button[disabled] {
     z-index: 10; 
     transition: transform 0.3s ease-in-out;
     position: fixed;
-    top: 0;
+    top: 1%;
     left: 0;
-    height: 100%;
+    height: 99%;
     width: 22%;
     transform: translateX(-100%);
     color: var(--side-panel-text-color);
@@ -111,10 +152,12 @@ button[disabled] {
     flex-direction: column;
     padding: 0.5%;
     padding-top:0;
+    text-shadow: 2px 2px 4px rgb(0, 0, 0);
 }
 
 #content_container {
     font-size:1.2em;
+    padding-top:10%;
 }
 
 
@@ -149,12 +192,6 @@ button[disabled] {
 #add_info_container{
     margin-top:1%;
     height:13%;
-}
-
-.locaton_history {
-   position:absolute;
-   right:3.5%;
-   top:6%;
 }
 
 .side-panel ul li {
@@ -197,12 +234,50 @@ button[disabled] {
     background-color: var(--add-info-button-active-color);
 }
 
-.marker_button {
-    width: 127%;
-    height: 5%; 
+#right_panel {
     display: flex;
-    justify-content: center;
-    align-items: center; 
+    flex-direction: column;
+    position: absolute;
+    right: 0;
+    width: 20%;
+    height: 100%;
+    top: 0;
+    padding: 1em;
+    z-index: 1000;
+    align-items: end;
+}
+
+#location_search {
+    display: flex;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    padding:5px;
+    font-size:1.65em;
+    font-family: 'Play', sans-serif;
+}
+
+.input_icon {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1em;
+}
+
+.input_icon i {
+    font-size:1.5em;
+    color: #ccc;
+    margin-right: 10px;
+}
+
+.locaton_history {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-grow: 1;
+    width:70%;
+    height:5%;
+}
+
+.marker_button {
     border-radius: 0.5em;
     margin-bottom:0.3em;
     cursor: pointer;
@@ -226,29 +301,6 @@ button[disabled] {
     transform: translateY(0.05em);
     box-shadow: 0 0.05em 0.1em rgba(0, 0, 0, 0.2);
     background-color: var(--marker-button-active-color)
-}
-
-#location_search {
-    border-radius: 5px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    padding:5px;
-    font-size:1.65em;
-    font-family: 'Play', sans-serif;
-}
-
-.input_icon {
-    position: absolute;
-    top: 1%; 
-    right: 1%; 
-    z-index: 1000;
-    display:inline-block;
-   
-}
-
-.input_icon i {
-    font-size:1.5em;
-    color: #ccc;
-    margin-right:5px;
 }
 
 #loadingIndicator {
