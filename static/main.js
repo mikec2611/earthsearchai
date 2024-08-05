@@ -1,9 +1,23 @@
 mapboxgl.accessToken = mapboxAccessToken;
+
+function getZoomLevel() {
+    const screenWidth = window.innerWidth;
+
+    if (screenWidth >= 1200) {
+        return 2.5; // Large screens
+    } else if (screenWidth >= 992) {
+        return 2; // Medium screens
+    } else if (screenWidth >= 768) {
+        return 1.5; // Small screens
+    } else {
+        return 1; // Extra small screens
+    }
+}
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v11',
     projection: 'globe', 
-    zoom: 2.5,
+    zoom: getZoomLevel(),
     center: [-90, 40]
 });
 
