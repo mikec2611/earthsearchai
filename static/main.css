@@ -76,6 +76,12 @@ body {
     width: 100%; 
 }
 
+#logo{
+    height:10%;
+    width:10%;
+    vertical-align: middle;
+    margin-bottom:8px;
+}
 
 #app_title {
     font-size: 2em; /* Adjust as needed */
@@ -84,7 +90,7 @@ body {
     background-clip:text;
     -webkit-text-fill-color: transparent;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    text-align: center;
+    text-align: left;
     z-index: 10;
     padding-left: 1%;
     padding-right: 1%;
@@ -123,13 +129,18 @@ button[disabled] {
 #map_rotate_btns{
     position:absolute;
     top: 2%;
-    left: 47.5%;
+    left: 46.5%;
+    background-color: #e1e1e1;
+    padding: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .map_rotate_btn{
     font-size: 1em; 
     padding: 0.5em;
     cursor: pointer;
+    border: 1px solid black;
+    background-color: #ffffff;
 }
 
 .fa-rotate-90 {
@@ -240,7 +251,6 @@ button[disabled] {
     position: absolute;
     right: 0;
     width: 20%;
-    height: 100%;
     top: 0;
     padding: 1em;
     z-index: 1000;

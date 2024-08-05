@@ -3,7 +3,7 @@ mapboxgl.accessToken = mapboxAccessToken;
 function getZoomLevel() {
     const screenWidth = window.innerWidth;
 
-    if (screenWidth >= 1200) {
+    if (screenWidth >= 1500) {
         return 2.5; // Large screens
     } else if (screenWidth >= 992) {
         return 2; // Medium screens
@@ -13,6 +13,7 @@ function getZoomLevel() {
         return 1; // Extra small screens
     }
 }
+
 const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/mapbox/satellite-streets-v11',

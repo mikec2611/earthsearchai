@@ -5,6 +5,7 @@
         <meta name="viewport" content="initial-scale=1,width=device-width">
         
         <title>EarthSearch.AI</title>
+        <link rel="icon" href="{{ url_for('static', filename='logo.jpg') }}" type="image/x-icon">
 
         <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
 
@@ -22,7 +23,10 @@
     <body>
         <div id="map"></div>
         
-        <div id="app_title">EarthSearch.ai</div>
+        <div id="app_title">
+            <img id="logo" src="{{ url_for('static', filename='logo_large.jpg') }}" alt="EarthSearch.ai Logo" >
+            EarthSearch.ai
+        </div>
 
         <div id="map_rotate_btns">
             <button id="playButton" class="map_rotate_btn" title="Start Globe Rotation" disabled>
