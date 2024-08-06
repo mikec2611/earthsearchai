@@ -157,7 +157,7 @@ button[disabled] {
     left: 0;
     height: 99%;
     width: 22%;
-    transform: translateX(-100%);
+    transform: translateX(0); /*translateX(-100%);*/
     color: var(--side-panel-text-color);
     display: flex;
     flex-direction: column;
@@ -349,7 +349,6 @@ button[disabled] {
     background: linear-gradient(45deg, #020eff, #00e1ff, #448ce4);
     background-size: 400% 400%;
     color: rgb(255, 255, 255);
-    border: none;
     padding: 0.5em 1em;
     transition: transform 0.1s, box-shadow 0.1s;
     animation: gradientAnimation 5s ease infinite;

@@ -160,6 +160,8 @@ def coordinates():
             if main_content_video_link != 'No video found':
                 video_content = main_content_video_link
             
+
+            
         # print(video_content)
         # print('main_content',main_content)
 
