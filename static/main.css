@@ -136,7 +136,7 @@ button[disabled] {
 }
 
 .map_rotate_btn{
-    font-size: 1em; 
+    font-size: 1.2em; 
     padding: 0.5em;
     cursor: pointer;
     border: 1px solid black;
@@ -394,3 +394,65 @@ button[disabled] {
     text-align:right;
 }
 
+#buyMeACoffee{
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    background: linear-gradient(270deg, #ffdd00, #ff0000, #ffdd00);
+    background-size: 600% 600%;
+    padding: 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+    animation: gradientAnimation 5s ease infinite;
+    cursor:pointer;
+}
+
+#buyMeACoffee:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+#buyMeACoffee.centered {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    bottom: auto;
+    right: auto;
+}
+
+#promptMessage {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#promptMessage button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s, transform 0.3s;
+    border:1px solid black;
+}
+
+#promptMessage #yesButton {
+    background-color: #28a745;
+    color: white;
+}
+
+#promptMessage #yesButton:hover {
+    background-color: #218838;
+    transform: scale(1.1);
+}
+
+#promptMessage #noButton {
+    background-color: #dc3545;
+    color: white;
+}
+
+#promptMessage #noButton:hover {
+    background-color: #c82333;
+    transform: scale(1.1);
+}

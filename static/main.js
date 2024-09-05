@@ -19,7 +19,13 @@ const map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/satellite-streets-v11',
     projection: 'globe', 
     zoom: getZoomLevel(),
-    center: [-90, 40]
+    center: [-90, 40],
+    dragRotate: true,
+    touchZoomRotate: true,
+    pitchWithRotate: true, // Enable touch pitch
+    dragPan: {
+        inertia: 300 // Increase inertia for smoother dragging
+    }
 });
 
 map.on('wheel', () => {
@@ -42,12 +48,12 @@ map.on('style.load', () => {
     map.setFog({'horizon-blend': 0.08}); 
 });
 
-
 const secondsPerRevolution = 120;
 const secondsPerRevolutionFast = 2;
 const maxSpinZoom = 5;
 const slowSpinZoom = 3;
 
+let searchCount = 0;
 let userInteracting = false;
 let spinEnabled = true;
 let scrollTimeout;
@@ -435,7 +441,7 @@ function run_location_process(lngLat){
                 main_content = response.main_content
                 let reponse_main_content = parser.parseFromString(main_content, "text/html");
                 video_content = response.video_content
-
+                
                 // set marker
                 let location_title = reponse_main_content.querySelector('h1').textContent;
                 clickCounter = addMarkerAtClick(lngLat, main_content, location_title);
@@ -447,6 +453,15 @@ function run_location_process(lngLat){
                 
                 // display main_content
                 displayInfoInPanel(main_content)
+                
+                searchCount++;
+                if (searchCount === 3) {
+                    const buyMeACoffee = document.getElementById('buyMeACoffee');
+                    const promptMessage = document.getElementById('promptMessage');
+                    
+                    buyMeACoffee.classList.add('centered');
+                    promptMessage.style.display = 'block';
+                }
 
                 resolve('Location processed successfully');
             },
@@ -458,8 +473,21 @@ function run_location_process(lngLat){
     });
 }
 
+document.getElementById('noButton').addEventListener('click', function() {
+    const buyMeACoffee = document.getElementById('buyMeACoffee');
+    const promptMessage = document.getElementById('promptMessage');
+    
+    buyMeACoffee.classList.remove('centered');
+    promptMessage.style.display = 'none';
+    searchCount = 0; // Reset the search count
+});
 
-
+document.getElementById('yesButton').addEventListener('click', function() {
+    window.open('https://www.buymeacoffee.com/mikec2611', '_blank');
+    buyMeACoffee.classList.remove('centered');
+    promptMessage.style.display = 'none';
+    searchCount = 0; // Reset the search count
+});
 
 
 
