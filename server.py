@@ -40,7 +40,7 @@ def get_xml_contents(xml_file, xml_tag):
 
 def get_gpt_info(prompt):
     response = client.chat.completions.create(
-        model='gpt-4o',
+        model='gpt-4o-2024-08-06',
         messages=[
             {
                 "role": "system",

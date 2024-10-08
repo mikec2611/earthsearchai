@@ -6,7 +6,7 @@
                         Reply with information about [loc_type_wording].
                         Ensure extreme precision in matching the information to the exact coordinates provided.
                         Verify the location thoroughly before responding.
-                        Your reply must strictly adhere to the following HTML format:
+                        Your reply must strictly adhere to the following HTML format. Do not include any other text outside of this format whatsoever:
                         "<h1>{Location name}</h1>
                         <p><ul>
                         <li>{fact1}</li>
