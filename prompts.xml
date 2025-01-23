@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <prompts>
-        <prompt_main>
+        <!-- <prompt_main>
                   <![CDATA[
                         Reply with information about [loc_type_wording].
                         Ensure extreme precision in matching the information to the exact coordinates provided.
@@ -23,5 +23,45 @@
                         5. Ensure all information is specific to the exact location given by the coordinates.
                         6. Include only the specified HTML tags; do not add any additional formatting or text.
                         ]]>
+        </prompt_main> -->
+
+        <prompt_main>
+                <![CDATA[
+                Generate a comprehensive and well-rounded overview of the following location. In your response, please include:
+
+                1. Historical and cultural context: major events, local traditions, and notable cultural influences.
+                2. Geographical overview: climate, topography, and any unique natural features.
+                3. Notable landmarks & must-see attractions: including both popular tourist spots and lesser-known gems.
+                4. Local cuisine & cultural experiences: typical dishes, dining etiquette, and cultural highlights (festivals, celebrations, local art, etc.).
+                5. Recommended activities & seasonal highlights: suggestions for different types of travelers, along with the best times of year to visit.
+                6. Practical travel information: transportation options, approximate costs, safety considerations, and travel tips for maximizing one’s stay.
+                7. Sustainable & responsible travel practices: ways visitors can minimize their environmental impact and support the local community.
+                8. Step-by-step directions and additional pointers: clear guidance on reaching the location from major transit hubs and any essential do’s and don’ts.
+
+                **However,** your final reply must adhere **strictly** to the following HTML format (and nothing else):
+
+                "<h1>{Location name}</h1>
+                <p><ul>
+                <li>{fact1}</li>
+                <li>{fact2}</li>
+                <li>{fact3}</li>
+                <li>{fact4}</li>
+                <li>{fact5}</li>
+                </ul></p>"
+
+                **Guidelines to follow:**
+
+                1. The `<h1>` tag should contain **only** the location name (no additional text).
+                2. Provide **exactly 5** concise bullet points within the `<ul>` element.
+                3. Each bullet point should focus on a unique, interesting fact, covering the key topics above as precisely as possible.
+                4. **Do not** include the coordinates in your response.
+                5. Ensure all information is specific to the exact location.
+                6. Include **only** the specified HTML tags; do **not** add extra formatting or text.
+                7. Conclude in a way that helps travelers plan their itinerary at a glance, while still keeping each bullet point concise.
+
+                [loc_type_wording]
+
+                ]]>
         </prompt_main>
+
 </prompts>

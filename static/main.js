@@ -454,14 +454,14 @@ function run_location_process(lngLat){
                 // display main_content
                 displayInfoInPanel(main_content)
                 
-                searchCount++;
-                if (searchCount === 3) {
-                    const buyMeACoffee = document.getElementById('buyMeACoffee');
-                    const promptMessage = document.getElementById('promptMessage');
+                // searchCount++;
+                // if (searchCount === 3) {
+                //     const buyMeACoffee = document.getElementById('buyMeACoffee');
+                //     const promptMessage = document.getElementById('promptMessage');
                     
-                    buyMeACoffee.classList.add('centered');
-                    promptMessage.style.display = 'block';
-                }
+                //     buyMeACoffee.classList.add('centered');
+                //     promptMessage.style.display = 'block';
+                // }
 
                 resolve('Location processed successfully');
             },
@@ -473,21 +473,21 @@ function run_location_process(lngLat){
     });
 }
 
-document.getElementById('noButton').addEventListener('click', function() {
-    const buyMeACoffee = document.getElementById('buyMeACoffee');
-    const promptMessage = document.getElementById('promptMessage');
+// document.getElementById('noButton').addEventListener('click', function() {
+//     const buyMeACoffee = document.getElementById('buyMeACoffee');
+//     const promptMessage = document.getElementById('promptMessage');
     
-    buyMeACoffee.classList.remove('centered');
-    promptMessage.style.display = 'none';
-    searchCount = 0; // Reset the search count
-});
+//     buyMeACoffee.classList.remove('centered');
+//     promptMessage.style.display = 'none';
+//     searchCount = 0; // Reset the search count
+// });
 
-document.getElementById('yesButton').addEventListener('click', function() {
-    window.open('https://www.buymeacoffee.com/mikec2611', '_blank');
-    buyMeACoffee.classList.remove('centered');
-    promptMessage.style.display = 'none';
-    searchCount = 0; // Reset the search count
-});
+// document.getElementById('yesButton').addEventListener('click', function() {
+//     window.open('https://www.buymeacoffee.com/mikec2611', '_blank');
+//     buyMeACoffee.classList.remove('centered');
+//     promptMessage.style.display = 'none';
+//     searchCount = 0; // Reset the search count
+// });
 
 
 

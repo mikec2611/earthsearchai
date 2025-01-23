@@ -12,11 +12,15 @@ from flask import Flask, render_template, jsonify, request
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
-# project_folder = os.path.expanduser('~/earthsearch')
-# load_dotenv(os.path.join(project_folder, '.env'))
-# prompt_xml_path = os.path.join(project_folder, 'prompts.xml')
-load_dotenv()
-prompt_xml_path = "prompts.xml"
+# prod
+project_folder = os.path.expanduser('~/earthsearch')
+load_dotenv(os.path.join(project_folder, '.env'))
+prompt_xml_path = os.path.join(project_folder, 'prompts.xml')
+
+# # local debug
+# load_dotenv()
+# prompt_xml_path = "prompts.xml"
+
 mapbox_token = os.environ.get('MAPBOX_TOKEN')
 google_api_key = os.environ.get('G00GL3_API_K3Y')
 PORT = 8000
@@ -40,18 +44,10 @@ def get_xml_contents(xml_file, xml_tag):
 
 def get_gpt_info(prompt):
     response = client.chat.completions.create(
-        model='gpt-4o-2024-08-06',
+        model="gpt-4o-2024-11-20",
         messages=[
-            {
-                "role": "system",
-                "content": "You are an expert assistant specializing in global geography, history, and cultural information. You have comprehensive knowledge of locations worldwide, including their coordinates, historical significance, cultural landmarks, and current socio-economic conditions. When given coordinates or a location name, you can provide detailed, accurate information about that place, including its geography, climate, notable events, and interesting facts. You're also able to compare different locations and discuss how they've changed over time."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        max_tokens=300
+            {"role": "user", "content": prompt}
+        ]
     )
 
     return response.choices[0].message.content
@@ -139,9 +135,9 @@ def coordinates():
         prompt_main = get_xml_contents(prompt_xml_path, 'prompt_main')
 
         if loc_result == 1:
-            prompt_main = prompt_main.replace('[loc_type_wording]', loc_name + '(coordinates at ' + coordinates + ')')
+            prompt_main = prompt_main.replace('[loc_type_wording]', 'The location is: ' + loc_name + ' (coordinates at ' + coordinates + ')')
         else:
-            prompt_main = prompt_main.replace('[loc_type_wording]', 'the location at coordinates:' +  coordinates)
+            prompt_main = prompt_main.replace('[loc_type_wording]', 'The location is located at coordinates:' +  coordinates)
             
         main_content = get_gpt_info(prompt_main)
 
