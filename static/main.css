@@ -168,9 +168,24 @@ button[disabled] {
 
 #content_container {
     font-size:100%;
-    padding-top:10%;
+    padding: 1em;
+    margin-top: 10%;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
+#content_container p {
+    margin-bottom: 0.8em; /* Add some space between paragraphs */
+    line-height: 1.4; /* Improve readability */
+}
+
+#content_container b {
+    font-weight: 900; /* Make it extra bold */
+    color: orange;
+    /* Optional: Add a subtle text shadow for more pop */
+    /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); */ 
+}
 
 #loc_video{
     height:30%;
@@ -393,7 +408,7 @@ button[disabled] {
     font-size:0.7em;
     text-align:right;
 }
-
+/* 
 #buyMeACoffee{
     position: fixed;
     bottom: 25px;
@@ -419,7 +434,7 @@ button[disabled] {
     transform: translate(-50%, -50%);
     bottom: auto;
     right: auto;
-}
+} */
 
 #promptMessage {
     margin-top: 10px;
@@ -455,4 +470,113 @@ button[disabled] {
 #promptMessage #noButton:hover {
     background-color: #c82333;
     transform: scale(1.1);
+}
+
+/* Tutorial Styles */
+#tutorialOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1999; /* Below modal, above everything else */
+}
+
+#tutorialModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(30, 30, 30, 0.95);
+    color: #e0e0e0;
+    padding: 30px 35px; /* Slightly more horizontal padding */
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    z-index: 2000;
+    width: 90%;
+    max-width: 550px;
+    border: 2px solid #55beff; /* More defined border using theme color */
+}
+
+#tutorialModal h2 {
+    margin-top: 0;
+    margin-bottom: 1em;
+    color: #55beff;
+    text-align: center;
+    font-size: 1.6em;
+    font-weight: 500;
+}
+
+#tutorialModal p {
+    text-align: center;
+    margin-bottom: 1.5em;
+    font-size: 1.1em;
+}
+
+#tutorialModal ul {
+    list-style: none;
+    padding-left: 0; /* Remove all default padding */
+}
+
+#tutorialModal li {
+    margin-bottom: 1.2em; /* Slightly more space between items */
+    line-height: 1.5;
+    font-size: 1em;
+    padding-left: 35px; /* Make space for the icon */
+    position: relative; /* Needed for absolute positioning of ::before */
+}
+
+/* Add icons using ::before pseudo-elements */
+#tutorialModal li::before {
+    font-family: "Font Awesome 5 Free"; /* Ensure Font Awesome is used */
+    font-weight: 900; /* Use solid style icons */
+    position: absolute;
+    left: 0;
+    width: 25px; /* Fixed width for alignment */
+    text-align: center;
+    color: #55beff; /* Icon color */
+    font-size: 1.1em;
+}
+
+/* Specific icons for each list item */
+#tutorialModal li:nth-child(1)::before { content: '\f3c5'; } /* fa-map-marker-alt */
+#tutorialModal li:nth-child(2)::before { content: '\f002'; } /* fa-search */
+#tutorialModal li:nth-child(3)::before { content: '\f074'; } /* fa-random */
+#tutorialModal li:nth-child(4)::before { content: '\f1da'; } /* fa-history */
+
+#tutorialModal strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* #tutorialModal i { 
+    color: #55beff; 
+    margin: 0 2px;
+} */ /* Remove this if icons are handled by li::before */
+
+#tutorialModal button {
+    display: block;
+    margin: 25px auto 0;
+    padding: 12px 30px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#tutorialModal button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+#tutorialModal button:active {
+    transform: translateY(0px);
+    background-color: #004ca0;
 }

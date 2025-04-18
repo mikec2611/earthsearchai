@@ -8,3 +8,10 @@ tmp/nanoc/
 
 # Crash Log
 crash.log
+
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.pyc

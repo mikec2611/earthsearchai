@@ -441,9 +441,18 @@ function run_location_process(lngLat){
                 main_content = response.main_content
                 let reponse_main_content = parser.parseFromString(main_content, "text/html");
                 video_content = response.video_content
+                let loc_name = response.loc_name // Get loc_name from response
                 
                 // set marker
-                let location_title = reponse_main_content.querySelector('h1').textContent;
+                let h1Element = reponse_main_content.querySelector('h1');
+                let location_title;
+                if (h1Element && h1Element.textContent.trim()) {
+                    location_title = h1Element.textContent.trim();
+                } else {
+                    // Fallback to loc_name if H1 is missing or empty
+                    location_title = loc_name ? loc_name : 'Unknown Location'; 
+                }
+                
                 clickCounter = addMarkerAtClick(lngLat, main_content, location_title);
                 addButtonForMarker(clickCounter, location_title, lngLat.lng, lngLat.lat, video_content);
                 highlight_active_marker(clickCounter)
@@ -492,3 +501,25 @@ function run_location_process(lngLat){
 
 
 spinGlobe();
+
+// Tutorial Logic
+document.addEventListener('DOMContentLoaded', (event) => {
+    const tutorialModal = document.getElementById('tutorialModal');
+    const tutorialOverlay = document.getElementById('tutorialOverlay');
+    const closeTutorialButton = document.getElementById('closeTutorial');
+
+    // Check if the user has visited before
+    if (!localStorage.getItem('hasVisitedEarthSearch')) {
+        // Show the modal and overlay
+        tutorialModal.style.display = 'block';
+        tutorialOverlay.style.display = 'block';
+    }
+
+    // Add event listener for the close button
+    closeTutorialButton.addEventListener('click', () => {
+        tutorialModal.style.display = 'none';
+        tutorialOverlay.style.display = 'none';
+        // Set the flag in localStorage so it doesn't show again
+        localStorage.setItem('hasVisitedEarthSearch', 'true');
+    });
+});

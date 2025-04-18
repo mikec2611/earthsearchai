@@ -1,4 +1,3 @@
-
 import requests
 import xml.etree.ElementTree as ET
 import re
@@ -13,13 +12,13 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
 # prod
-project_folder = os.path.expanduser('~/earthsearch')
-load_dotenv(os.path.join(project_folder, '.env'))
-prompt_xml_path = os.path.join(project_folder, 'prompts.xml')
+# project_folder = os.path.expanduser('~/earthsearch')
+# load_dotenv(os.path.join(project_folder, '.env'))
+# prompt_xml_path = os.path.join(project_folder, 'prompts.xml')
 
 # # local debug
-# load_dotenv()
-# prompt_xml_path = "prompts.xml"
+load_dotenv()
+prompt_xml_path = "prompts.xml"
 
 mapbox_token = os.environ.get('MAPBOX_TOKEN')
 google_api_key = os.environ.get('G00GL3_API_K3Y')
@@ -44,7 +43,7 @@ def get_xml_contents(xml_file, xml_tag):
 
 def get_gpt_info(prompt):
     response = client.chat.completions.create(
-        model="gpt-4o-2024-11-20",
+        model="gpt-4.1-nano-2025-04-14",
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -53,36 +52,71 @@ def get_gpt_info(prompt):
     return response.choices[0].message.content
 
 def get_location_name(latitude, longitude):
-    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{longitude},{latitude}.json?access_token={mapbox_token}&types=place,region"
+    # Include 'poi' in the types parameter to fetch points of interest including natural features
+    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{longitude},{latitude}.json?access_token={mapbox_token}&types=poi,place,region"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
+        poi_name = None  # Add variable for POI name
         place_name = None
         region_name = None
         country_name = None
         if data['features']:
+            # Prioritize POI if available
             for feature in data['features']:
-                if 'place' in feature['place_type']:
-                    place_name = feature['text']
-                elif 'region' in feature['place_type']:
-                    region_name = feature['text']
-                elif 'country' in feature['place_type']:
-                    country_name = feature['text']
-                if place_name and region_name and country_name:
-                    break
+                if 'poi' in feature['place_type']:
+                    poi_name = feature['text']
+                    break # Found POI, no need to check others for POI specifically
+            
+            # If no POI found, check for place, region, country
+            if not poi_name:
+                for feature in data['features']:
+                    if 'place' in feature['place_type']:
+                        place_name = feature['text']
+                    elif 'region' in feature['place_type']:
+                        region_name = feature['text']
+                    elif 'country' in feature['place_type']:
+                        country_name = feature['text']
+                    # Optimization: break if we found the most specific combination possible without POI
+                    if place_name and region_name and country_name: 
+                        break
 
+            # Return POI name if found
+            if poi_name:
+                 # Attempt to extract a more complete name if available (e.g., "Great Salt Lake, Utah, United States")
+                 # Fallback to just the POI text if 'place_name' isn't useful
+                 full_poi_name = next((f['place_name'] for f in data['features'] if 'poi' in f['place_type'] and f['text'] == poi_name), poi_name)
+                 return 1, full_poi_name
+
+            # Fallback logic if no POI found
             if place_name and region_name and country_name:
                 return 1, f"{place_name}, {region_name}, {country_name}"
-            elif place_name and region_name:  # Fallback to city and state if country is not found
+            elif place_name and region_name:
                 return 1, f"{place_name}, {region_name}"
             elif place_name:
-                return 1, place_name  # Return just the place name if neither region nor country is found
-            else:
+                return 1, place_name
+            else: # If only country or region found, or nothing specific
+                 # Use the most descriptive name available from the first feature as a last resort
                 place_name = data['features'][0]['place_name'] if data['features'] else 'Unknown location'
                 if place_name == 'Unknown location':
                     return 0, place_name
                 else:
-                    return 1, place_name
+                    # Attempt to refine the generic place_name
+                    first_feature = data['features'][0]
+                    refined_name = first_feature.get('text', place_name) # Prefer 'text' if available
+                    context = first_feature.get('context', [])
+                    if context:
+                       # Add region/country from context if available
+                       region = next((item['text'] for item in context if 'region' in item['id']), None)
+                       country = next((item['text'] for item in context if 'country' in item['id']), None)
+                       if region and country:
+                           refined_name = f"{refined_name}, {region}, {country}"
+                       elif region:
+                           refined_name = f"{refined_name}, {region}"
+                       elif country:
+                           refined_name = f"{refined_name}, {country}"
+
+                    return 1, refined_name
         else:
             return 0, 'Unknown location'
     else:
@@ -178,7 +212,7 @@ def coordinates():
     #                     </ul> \
     #                 </p>'
 
-    return jsonify({'main_content': main_content, 'video_content': video_content})
+    return jsonify({'main_content': main_content, 'video_content': video_content, 'loc_name': loc_name})
 
 
 
