@@ -270,13 +270,52 @@ map.on('click', function(e) {
         return; // Exit if the function is already running
     }
 
+    // --- START: New code to query rendered features ---
+    // Define a small pixel buffer (radius)
+    const queryRadius = 50;
+    const queryPoint = e.point;
+    const bbox = [
+        [queryPoint.x - queryRadius, queryPoint.y - queryRadius],
+        [queryPoint.x + queryRadius, queryPoint.y + queryRadius]
+    ];
+    const features = map.queryRenderedFeatures(bbox); // Query within the bounding box
+
+    // Define prioritized layers *before* using them in the filter
+    const labelLayerPriority = [
+        'natural-point-label', 'water-point-label', 'place-label', 
+        'poi-label', 'road-label', 'settlement-label' 
+        // Add more specific layer IDs from your style if needed
+    ];
+
+    // Filter features: only include those from relevant layers AND having a name property
+    const relevantFeatures = features.filter(f => 
+        f.properties && (f.properties.name || f.properties.name_en) &&
+        (f.layer.type === 'symbol' || labelLayerPriority.some(layerId => f.layer.id.includes(layerId)))
+    );
+
+    let foundLabel = null;
+    if (relevantFeatures.length > 0) {
+        // Find the first feature from the prioritized list, or the first symbol otherwise
+        let bestFeature = relevantFeatures.find(f => labelLayerPriority.some(layerId => f.layer.id.includes(layerId)));
+        if (!bestFeature) {
+            bestFeature = relevantFeatures[0]; // Fallback to the first relevant feature if no priority match
+        }
+        foundLabel = bestFeature.properties.name || bestFeature.properties.name_en;
+    }
+
+
+    // Extract names from relevant features
+    const nearbyFeatureNames = relevantFeatures.map(f => f.properties.name || f.properties.name_en);
+    
+    // Debounce the main backend call
     clearTimeout(debounceTimer);
-    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('loadingIndicator').style.display = 'block'; // Keep showing loading indicator
 
     debounceTimer = setTimeout(() => {
         isRunning = true;
 
-        run_location_process(e.lngLat)
+        // Pass the nearby feature names to the backend process
+        run_location_process(e.lngLat, nearbyFeatureNames)
         .then(result => {
             isRunning = false; // Reset the flag when the function finishes
             document.getElementById('loadingIndicator').style.display = 'none';
@@ -412,7 +451,7 @@ document.getElementById('randomButton').addEventListener('click', function() {
 
 
 
-function run_location_process(lngLat){
+function run_location_process(lngLat, nearbyFeatureNames = []){
     return new Promise((resolve, reject) => {
         const foundLocation = savedLocations.find(location => 
             location.lngLat.lat === lngLat.lat && location.lngLat.lng === lngLat.lng
@@ -431,11 +470,13 @@ function run_location_process(lngLat){
             url: '/coordinates',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ 'lat': lngLat.lat, 
-                                    'lng': lngLat.lng, 
-                                    'prompt_type': 'general',  
-                                    'detail_topic': 'general' 
-                                }),
+            data: JSON.stringify({ 
+                'lat': lngLat.lat, 
+                'lng': lngLat.lng, 
+                'prompt_type': 'general',  
+                'detail_topic': 'general', 
+                'nearby_features': nearbyFeatureNames // Add nearby features to the payload
+            }),
             success: function(response) {
                 let parser = new DOMParser();
                 main_content = response.main_content

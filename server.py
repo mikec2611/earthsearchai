@@ -2,12 +2,13 @@ import requests
 import xml.etree.ElementTree as ET
 import re
 import os
+import json
 
 
 from openai import OpenAI
 from bs4 import BeautifulSoup
 from livereload import Server
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, render_template_string
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
@@ -163,17 +164,55 @@ def coordinates():
     lng = round(data['lng'], 3)
     coordinates = str(lat) + ', ' + str(lng)
     loc_result, loc_name = get_location_name(lat, lng)
+    nearby_features = data.get('nearby_features', []) # Get nearby features, default to empty list
     # print(loc_name, coordinates)
 
     if data['prompt_type'] == 'general':
-        prompt_main = get_xml_contents(prompt_xml_path, 'prompt_main')
+        prompt_template_str = get_xml_contents(prompt_xml_path, 'prompt_main')
 
-        if loc_result == 1:
-            prompt_main = prompt_main.replace('[loc_type_wording]', 'The location is: ' + loc_name + ' (coordinates at ' + coordinates + ')')
-        else:
-            prompt_main = prompt_main.replace('[loc_type_wording]', 'The location is located at coordinates:' +  coordinates)
-            
-        main_content = get_gpt_info(prompt_main)
+        # Prepare context for the template
+        template_context = {
+            'loc_name': loc_name if loc_result == 1 else None, # Pass loc_name only if valid
+            'coordinates': coordinates,
+            'nearby_features': nearby_features
+        }
+        
+        # Render the prompt using the template string and context
+        rendered_prompt = render_template_string(prompt_template_str, **template_context)
+        print("Rendered Prompt:", rendered_prompt) # Optional: Debugging
+
+        gpt_response_raw = get_gpt_info(rendered_prompt)
+        print("Raw GPT Response:", gpt_response_raw) # Optional: Debugging
+
+        main_content_html = "<h1>Error</h1><p>Could not parse AI response.</p>" # Default error HTML
+        try:
+            # Clean potential markdown ```json ... ``` wrapping
+            if gpt_response_raw.strip().startswith("```json"):
+                gpt_response_clean = gpt_response_raw.strip()[7:-3].strip()
+            elif gpt_response_raw.strip().startswith("```"):
+                 gpt_response_clean = gpt_response_raw.strip()[3:-3].strip()
+            else:
+                gpt_response_clean = gpt_response_raw
+                
+            gpt_data = json.loads(gpt_response_clean) 
+            location_name_from_gpt = gpt_data.get("location_name", "Unknown Location")
+            facts = gpt_data.get("facts", [])
+
+            # Build the HTML string from the parsed JSON
+            main_content_html = f"<h1>{location_name_from_gpt}</h1>"
+            for fact in facts:
+                category = fact.get("category", "")
+                content = fact.get("content", "")
+                main_content_html += f'<p class="info-item"><b class="category-title">{category}:</b> {content}</p>'
+
+        except json.JSONDecodeError as e:
+            print(f"Error decoding GPT JSON response: {e}")
+            # Keep the default error HTML or use the raw response if preferred
+            # main_content_html = f"<h1>Error</h1><p>Could not parse AI response.</p><pre>{gpt_response_raw}</pre>"
+        except Exception as e:
+             print(f"An unexpected error occurred processing GPT response: {e}")
+        
+        main_content = main_content_html # Assign the generated HTML to main_content
 
         video_content = '<div class="video_container">No video found for this location.</div>'
         if loc_result == 1:

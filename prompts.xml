@@ -27,22 +27,39 @@
 
         <prompt_main>
                 <![CDATA[
-                Provide a concise overview for the following location: [loc_type_wording]
+                Provide a concise overview for the following location:
+                {% if loc_name %}
+                Location Name: {{ loc_name }}
+                {% endif %}
+                Coordinates: {{ coordinates }}
+                {% if nearby_features %}
+                Nearby context features:
+                    {% for feature in nearby_features %}
+                    - {{ feature }}
+                    {% endfor %}
+                {% endif %}
 
-                Your response MUST strictly follow this HTML format:
-                <h1>{Location name}</h1>
-                <p><b>Landmark/Attraction</b> - {Landmark/Attraction content}</p>
-                <p><b>History/Culture</b> - {History/Culture content}</p>
-                <p><b>Nature/Geography</b> - {Nature/Geography content}</p>
-                <p><b>Local Experience</b> - {Local Experience content (e.g., food, activity)}</p>
-                <p><b>Unique Detail</b> - {Unique Detail/Fun Fact content}</p>
+                Your response MUST be a JSON object containing the location overview.
+                The JSON object must strictly follow this structure:
+                ```json
+                {
+                  "location_name": "{Name of the location}",
+                  "facts": [
+                    {"category": "Landmark/Attraction", "content": "{Fact about landmark/attraction}"},
+                    {"category": "History/Culture", "content": "{Fact about history/culture}"},
+                    {"category": "Nature/Geography", "content": "{Fact about nature/geography}"},
+                    {"category": "Local Experience", "content": "{Fact about local experience}"},
+                    {"category": "Unique Detail", "content": "{Fact about a unique detail}"}
+                  ]
+                }
+                ```
 
                 **Rules:**
-                - The <h1> must contain ONLY the location name.
-                - Include exactly 5 concise facts, each in its own <p> tag.
-                - Each fact MUST start with the bolded category name (e.g., <b>Landmark/Attraction</b> - ) followed by the content.
-                - Do NOT include coordinates.
-                - Use ONLY the specified HTML tagimage.pngs (<h1>, <p>, <b>). No extra text or formatting.
+                - Return ONLY the JSON object, with no additional text before or after.
+                - The `location_name` value must contain ONLY the location name.
+                - The `facts` array must contain exactly 5 objects.
+                - Each object in the `facts` array must have a `category` key (using the exact category names specified) and a `content` key.
+                - Do NOT include coordinates in the response values.
                 ]]>
         </prompt_main>
 

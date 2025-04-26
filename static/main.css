@@ -175,16 +175,25 @@ button[disabled] {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
+/* New classes for consistent content styling */
+.info-list {
+    list-style: none; /* Optional: remove default bullet points if desired */
+    padding-left: 0; /* Optional: remove default padding */
+    margin-bottom: 0; /* Adjust as needed */
+}
+
+.info-item {
+    margin-bottom: 1em; /* Keep existing spacing */
+}
+
+.category-title {
+    font-weight: 900; /* Make it extra bold */
+    color: orange;
+}
+
 #content_container p {
     margin-bottom: 0.8em; /* Add some space between paragraphs */
     line-height: 1.4; /* Improve readability */
-}
-
-#content_container b {
-    font-weight: 900; /* Make it extra bold */
-    color: orange;
-    /* Optional: Add a subtle text shadow for more pop */
-    /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); */ 
 }
 
 #loc_video{
