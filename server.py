@@ -200,10 +200,15 @@ def coordinates():
 
             # Build the HTML string from the parsed JSON
             main_content_html = f"<h1>{location_name_from_gpt}</h1>"
+            # Start the list
+            main_content_html += '<ul class="info-list">' 
             for fact in facts:
                 category = fact.get("category", "")
                 content = fact.get("content", "")
-                main_content_html += f'<p class="info-item"><b class="category-title">{category}:</b> {content}</p>'
+                # Format each fact as a list item with a hyphen inside the bold tag
+                main_content_html += f'<li class="info-item"><b class="category-title">{category} -</b> {content}</li>'
+            # Close the list
+            main_content_html += "</ul>" 
 
         except json.JSONDecodeError as e:
             print(f"Error decoding GPT JSON response: {e}")

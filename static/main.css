@@ -177,7 +177,7 @@ button[disabled] {
 
 /* New classes for consistent content styling */
 .info-list {
-    list-style: none; /* Optional: remove default bullet points if desired */
+    /* list-style: none; */ /* Optional: remove default bullet points if desired */
     padding-left: 0; /* Optional: remove default padding */
     margin-bottom: 0; /* Adjust as needed */
 }
@@ -188,6 +188,11 @@ button[disabled] {
 
 .category-title {
     font-weight: 900; /* Make it extra bold */
+    color: orange;
+}
+
+/* Make the bullet point orange */
+.info-list .info-item::marker {
     color: orange;
 }
 
