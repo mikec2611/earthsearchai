@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 
 # # local debug
 load_dotenv()
+print(f"Loaded OPEN_WEATHER_API_KEY: {os.getenv('OPEN_WEATHER_API_KEY')}") # Debug print
 prompt_xml_path = "prompts.xml"
 
 mapbox_token = os.environ.get('MAPBOX_TOKEN')
@@ -156,6 +157,16 @@ def get_video_link_main_content(main_content):
 @app.route('/')
 def home():
     return render_template('main.html', mapbox_access_token=mapbox_token)
+
+@app.route('/get-weather-key')
+def get_weather_key():
+    api_key = os.getenv("OPEN_WEATHER_API_KEY")
+    print(f"API Key retrieved in endpoint: {api_key}") # Debug print
+    if api_key:
+        return jsonify({'apiKey': api_key})
+    else:
+        # Handle the case where the key is not found (e.g., return an error or an empty key)
+        return jsonify({'error': 'OpenWeatherMap API key not found in environment'}), 404
 
 @app.route('/coordinates', methods=['POST'])
 def coordinates():

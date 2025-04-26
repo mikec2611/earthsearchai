@@ -184,6 +184,8 @@ function addButtonForMarker(markerID, locationTitle, longitude, latitude, video_
         map.flyTo({center: [longitude, latitude]});
         highlight_active_marker(markerID)
         embed_loc_video(button.getAttribute('data-video-content'));
+        // Fetch weather when a history button is clicked
+        fetchWeatherForecast(latitude, longitude); 
     });
 }
 
@@ -503,6 +505,9 @@ function run_location_process(lngLat, nearbyFeatureNames = []){
                 
                 // display main_content
                 displayInfoInPanel(main_content)
+
+                // Fetch weather for the clicked location
+                fetchWeatherForecast(lngLat.lat, lngLat.lng);
                 
                 // searchCount++;
                 // if (searchCount === 3) {
@@ -564,3 +569,105 @@ document.addEventListener('DOMContentLoaded', (event) => {
         localStorage.setItem('hasVisitedEarthSearch', 'true');
     });
 });
+
+// Function to fetch and display weather forecast
+async function fetchWeatherForecast(latitude, longitude) {
+    const weatherContainer = document.getElementById('weather-forecast');
+    weatherContainer.innerHTML = '<p>Loading weather...</p>'; // Show loading state
+
+    try {
+        // First, fetch the API key from our backend
+        const keyResponse = await fetch('/get-weather-key');
+        if (!keyResponse.ok) {
+            const errorData = await keyResponse.json();
+            throw new Error(`Failed to get API key: ${keyResponse.status} - ${errorData.error || 'Server error'}`);
+        }
+        const keyData = await keyResponse.json();
+        const apiKey = keyData.apiKey;
+
+        if (!apiKey) {
+            throw new Error('API key is missing from server response.');
+        }
+
+        // Using 5 Day / 3 Hour Forecast endpoint for broader free tier compatibility:
+        const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=imperial`; // Use 'imperial' for Fahrenheit
+
+        const weatherResponse = await fetch(apiUrl);
+        if (!weatherResponse.ok) {
+            // Handle HTTP errors (e.g., 401 Unauthorized, 404 Not Found)
+            const errorData = await weatherResponse.json();
+            throw new Error(`Weather API Error: ${weatherResponse.status} - ${errorData.message || 'Unknown error'}`);
+        }
+        const data = await weatherResponse.json();
+        displayWeatherForecast(data);
+
+    } catch (error) {
+        console.error('Failed to fetch weather forecast:', error);
+        weatherContainer.innerHTML = `<p style="color: red;">Could not load weather forecast. ${error.message}</p>`;
+        // Optionally, add a retry button or specific instructions
+    }
+}
+
+// Function to process and display the 5-day forecast data
+function displayWeatherForecast(data) {
+    const weatherContainer = document.getElementById('weather-forecast');
+    
+    // Extract location name from API response, provide fallback
+    const locationName = data.city && data.city.name ? data.city.name : 'Weather Forecast';
+    weatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; // Clear loading/previous state and add location name
+
+    if (!data || !data.list) {
+        weatherContainer.innerHTML += '<p>No forecast data available.</p>';
+        return;
+    }
+
+    // Process the 3-hour interval data to get daily summaries
+    const dailyForecasts = {};
+    data.list.forEach(item => {
+        const date = new Date(item.dt * 1000).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        if (!dailyForecasts[date]) {
+            dailyForecasts[date] = {
+                temps: [],
+                descriptions: {},
+                icons: {},
+                humidity: [],
+                wind: []
+            };
+        }
+        dailyForecasts[date].temps.push(item.main.temp);
+        dailyForecasts[date].humidity.push(item.main.humidity);
+        dailyForecasts[date].wind.push(item.wind.speed);
+
+        // Store descriptions and icons counts to find the most frequent one for the day
+        const desc = item.weather[0].description;
+        const icon = item.weather[0].icon;
+        dailyForecasts[date].descriptions[desc] = (dailyForecasts[date].descriptions[desc] || 0) + 1;
+        dailyForecasts[date].icons[icon] = (dailyForecasts[date].icons[icon] || 0) + 1;
+    });
+
+    // Create HTML for each day
+    Object.keys(dailyForecasts).slice(0, 5).forEach(date => { // Limit to 5 days
+        const dayData = dailyForecasts[date];
+        const maxTemp = Math.round(Math.max(...dayData.temps));
+        const minTemp = Math.round(Math.min(...dayData.temps));
+        const avgHumidity = Math.round(dayData.humidity.reduce((a, b) => a + b, 0) / dayData.humidity.length);
+        const avgWind = (dayData.wind.reduce((a, b) => a + b, 0) / dayData.wind.length).toFixed(1);
+
+        // Find most frequent description and icon
+        const mostFrequentDesc = Object.keys(dayData.descriptions).reduce((a, b) => dayData.descriptions[a] > dayData.descriptions[b] ? a : b);
+        const mostFrequentIcon = Object.keys(dayData.icons).reduce((a, b) => dayData.icons[a] > dayData.icons[b] ? a : b);
+        const iconUrl = `https://openweathermap.org/img/wn/${mostFrequentIcon}.png`;
+
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('weather-day');
+        dayElement.innerHTML = `
+            <div class="weather-date">${date}</div>
+            <img src="${iconUrl}" alt="${mostFrequentDesc}" class="weather-icon">
+            <div class="weather-temp">${maxTemp}°F / ${minTemp}°F</div>
+            <div class="weather-desc">${mostFrequentDesc}</div>
+            <div class="weather-extra">Humidity: ${avgHumidity}%</div>
+            <div class="weather-extra">Wind: ${avgWind} m/s</div>
+        `;
+        weatherContainer.appendChild(dayElement);
+    });
+}
