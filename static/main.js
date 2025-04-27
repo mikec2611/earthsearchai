@@ -548,11 +548,85 @@ function run_location_process(lngLat, nearbyFeatureNames = []){
 
 spinGlobe();
 
+// --- Utility Functions ---
+// Debounce function to limit the rate at which a function can fire.
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+// --- Reverse Geocode Function ---
+async function reverseGeocode(latitude, longitude) {
+    const accessToken = mapboxgl.accessToken; // Use the global token
+    if (!accessToken) {
+        console.error('Mapbox Access Token is not available for reverse geocoding.');
+        return `Area near ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`; // Fallback if token missing
+    }
+    
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${accessToken}&types=place,locality,neighborhood,address,poi`;
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Mapbox API Error: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        if (data.features && data.features.length > 0) {
+            // Prioritize different feature types if needed, otherwise take the first
+            return data.features[0].place_name; // Or a more specific property like context
+        } else {
+            return `Area near ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`; // Fallback if no features found
+        }
+    } catch (error) {
+        console.error('Error during reverse geocoding:', error);
+        return `Area near ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`; // Fallback on error
+    }
+}
+
+// --- Panel Height Adjustment ---
+function adjustSidePanelHeight() {
+    const appTitle = document.getElementById('app_title');
+    const sidePanel = document.getElementById('side-panel');
+    const showPanelButton = document.getElementById('showPanelButton'); // Also adjust show button position
+
+    if (appTitle && sidePanel) {
+        const appTitleRect = appTitle.getBoundingClientRect();
+        const panelTopMargin = 15; // Space between title and panel
+        const panelBottomMargin = 10; // Space between panel bottom and viewport bottom
+
+        const panelTop = appTitleRect.bottom + panelTopMargin;
+        const panelHeight = window.innerHeight - panelTop - panelBottomMargin;
+
+        sidePanel.style.top = `${panelTop}px`;
+        sidePanel.style.height = `${panelHeight}px`;
+
+        // Adjust show button position to match panel's intended top/left when hidden
+        if (showPanelButton) {
+            showPanelButton.style.top = `${panelTop}px`;
+            // showPanelButton.style.left is already handled by CSS (left: 10px)
+        }
+    }
+}
+
 // Tutorial Logic
 document.addEventListener('DOMContentLoaded', (event) => {
     const tutorialModal = document.getElementById('tutorialModal');
     const tutorialOverlay = document.getElementById('tutorialOverlay');
     const closeTutorialButton = document.getElementById('closeTutorial');
+    const sidePanel = document.getElementById('side-panel'); // Get side panel element
+    const hidePanelButton = document.getElementById('hidePanelButton'); // Get hide button element
+    const showPanelButton = document.getElementById('showPanelButton'); // Get show button element
 
     // Check if the user has visited before
     if (!localStorage.getItem('hasVisitedEarthSearch')) {
@@ -568,7 +642,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // Set the flag in localStorage so it doesn't show again
         localStorage.setItem('hasVisitedEarthSearch', 'true');
     });
+
+    // Add event listener for the hide panel button
+    if (hidePanelButton && sidePanel && showPanelButton) {
+        hidePanelButton.addEventListener('click', () => {
+            sidePanel.classList.add('hidden'); 
+            showPanelButton.style.display = 'block'; // Directly show the button
+        });
+    }
+
+    // Add event listener for the show panel button
+    if (showPanelButton && sidePanel) {
+        showPanelButton.addEventListener('click', () => {
+            sidePanel.classList.remove('hidden'); // Show the panel
+            showPanelButton.style.display = 'none'; // Directly hide the button
+        });
+    }
+
+    // Initial adjustment of panel height
+    adjustSidePanelHeight();
 });
+
+// Adjust panel height on window resize
+window.addEventListener('resize', debounce(adjustSidePanelHeight, 150));
 
 // Function to fetch and display weather forecast
 async function fetchWeatherForecast(latitude, longitude) {
@@ -599,7 +695,8 @@ async function fetchWeatherForecast(latitude, longitude) {
             throw new Error(`Weather API Error: ${weatherResponse.status} - ${errorData.message || 'Unknown error'}`);
         }
         const data = await weatherResponse.json();
-        displayWeatherForecast(data);
+        // Pass lat/lon along with data
+        await displayWeatherForecast(data, latitude, longitude);
 
     } catch (error) {
         console.error('Failed to fetch weather forecast:', error);
@@ -609,12 +706,30 @@ async function fetchWeatherForecast(latitude, longitude) {
 }
 
 // Function to process and display the 5-day forecast data
-function displayWeatherForecast(data) {
+async function displayWeatherForecast(data, latitude, longitude) {
     const weatherContainer = document.getElementById('weather-forecast');
     
-    // Extract location name from API response, provide fallback
-    const locationName = data.city && data.city.name ? data.city.name : 'Weather Forecast';
-    weatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; // Clear loading/previous state and add location name
+    let locationName = 'Weather Forecast'; // Default fallback
+    
+    // Check if city name exists in OpenWeatherMap data
+    if (data.city && data.city.name) {
+        locationName = data.city.name;
+    } else if (latitude !== undefined && longitude !== undefined) {
+        // If no name, try reverse geocoding
+        locationName = 'Loading location...'; // Temporary name
+        // Update the header immediately with loading state
+        weatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
+        try {
+            const geocodedName = await reverseGeocode(latitude, longitude);
+            locationName = geocodedName; // Update name with result
+        } catch (error) { 
+            // Error already logged in reverseGeocode, keep fallback from there
+            locationName = `Area near ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+        }
+    } // else, keep the default 'Weather Forecast' if coordinates are also missing
+
+    // Set the final header (or update if reverse geocoding was used)
+    weatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
 
     if (!data || !data.list) {
         weatherContainer.innerHTML += '<p>No forecast data available.</p>';
