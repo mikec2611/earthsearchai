@@ -106,8 +106,14 @@ function highlight_active_marker(markerId) {
         buttonEl.classList.remove('active_marker');
     });
 
-    $('#marker_' + markerId).addClass('active_marker');
-    $('#marker_button_' + markerId).addClass('active_marker');
+    const markerElement = document.getElementById('marker_' + markerId);
+    if (markerElement) {
+        markerElement.classList.add('active_marker');
+    }
+    const buttonElement = document.getElementById('marker_button_' + markerId);
+    if (buttonElement) {
+        buttonElement.classList.add('active_marker');
+    }
 }
 
 
@@ -185,7 +191,8 @@ function addButtonForMarker(markerID, locationTitle, longitude, latitude, video_
         highlight_active_marker(markerID)
         embed_loc_video(button.getAttribute('data-video-content'));
         // Fetch weather when a history button is clicked
-        fetchWeatherForecast(latitude, longitude); 
+        // Pass locationTitle as a hint for weather display
+        fetchWeatherForecast(latitude, longitude, locationTitle); 
     });
 }
 
@@ -334,38 +341,6 @@ map.on('click', function(e) {
     }, 500);
 });
 
-// let debounceTimerInfo;
-// $('.info_button').on('click', function(e) {
-//     let detail_topic = $(this).text();
-//     clearTimeout(debounceTimerInfo);
-//     document.getElementById('loadingIndicator').style.display = 'block';
-//     debounceTimerInfo = setTimeout(() => {
-//         $.ajax({
-//             url: '/coordinates',
-//             type: 'POST',
-//             contentType: 'application/json',
-//             data: JSON.stringify({ 'lat': 'detail', 
-//                                     'lng': 'detail', 
-//                                     'prompt_type': 'detail',  
-//                                     'detail_topic': detail_topic 
-//                                 }),
-//             success: function(response) {
-//                 // content = response.content
-//                 // let parser = new DOMParser();
-//                 // let doc = parser.parseFromString(content, "text/html");
-//                 // let locationTitle = doc.querySelector('h1').textContent; // Extract the text content of the <h1> tag
-                
-//                 document.getElementById('loadingIndicator').style.display = 'none';
-//             },
-//             error: function(error) {
-//                 console.log(error);
-//                 document.getElementById('loadingIndicator').style.display = 'none';
-//             }
-//         });
-//     }, 500);
-// });
-
-
 document.getElementById('location_search').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         const searchTerm = this.value;
@@ -454,8 +429,8 @@ document.getElementById('randomButton').addEventListener('click', function() {
 
 
 function run_location_process(lngLat, nearbyFeatureNames = []){
-    return new Promise((resolve, reject) => {
-        const foundLocation = savedLocations.find(location => 
+    return new Promise(async (resolve, reject) => {
+        const foundLocation = savedLocations.find(location =>
             location.lngLat.lat === lngLat.lat && location.lngLat.lng === lngLat.lng
         );
         if (foundLocation) {
@@ -465,86 +440,84 @@ function run_location_process(lngLat, nearbyFeatureNames = []){
             });
             highlight_active_marker(foundLocation.id)
             showMarkerInfo(foundLocation.id);
+            // If cached, fetch weather too
+            // Try to get location title from the button for the hint
+            const buttonElement = document.getElementById('marker_button_' + foundLocation.id);
+            let cachedLocationTitle = 'Location'; // Default hint
+            if (buttonElement) {
+                 // Extract title, removing the "ID - " part
+                 const buttonText = buttonElement.textContent;
+                 cachedLocationTitle = buttonText.substring(buttonText.indexOf('-') + 1).trim(); 
+                 embed_loc_video(buttonElement.getAttribute('data-video-content'));
+            }
+            fetchWeatherForecast(foundLocation.lngLat.lat, foundLocation.lngLat.lng, cachedLocationTitle);
+            resolve('Location retrieved from cache'); // Resolve promise for cached case
             return;
         }
 
-        $.ajax({
-            url: '/coordinates',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ 
-                'lat': lngLat.lat, 
-                'lng': lngLat.lng, 
-                'prompt_type': 'general',  
-                'detail_topic': 'general', 
-                'nearby_features': nearbyFeatureNames // Add nearby features to the payload
-            }),
-            success: function(response) {
-                let parser = new DOMParser();
-                main_content = response.main_content
-                let reponse_main_content = parser.parseFromString(main_content, "text/html");
-                video_content = response.video_content
-                let loc_name = response.loc_name // Get loc_name from response
-                
-                // set marker
-                let h1Element = reponse_main_content.querySelector('h1');
-                let location_title;
-                if (h1Element && h1Element.textContent.trim()) {
-                    location_title = h1Element.textContent.trim();
-                } else {
-                    // Fallback to loc_name if H1 is missing or empty
-                    location_title = loc_name ? loc_name : 'Unknown Location'; 
-                }
-                
-                clickCounter = addMarkerAtClick(lngLat, main_content, location_title);
-                addButtonForMarker(clickCounter, location_title, lngLat.lng, lngLat.lat, video_content);
-                highlight_active_marker(clickCounter)
+        // Replace $.ajax with fetch
+        try {
+            const response = await fetch('/coordinates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'lat': lngLat.lat,
+                    'lng': lngLat.lng,
+                    'prompt_type': 'general',
+                    'detail_topic': 'general', // Keep this for now, might be used later
+                    'nearby_features': nearbyFeatureNames // Add nearby features to the payload
+                }),
+            });
 
-                // video embed;
-                embed_loc_video(video_content)
-                
-                // display main_content
-                displayInfoInPanel(main_content)
-
-                // Fetch weather for the clicked location
-                fetchWeatherForecast(lngLat.lat, lngLat.lng);
-                
-                // searchCount++;
-                // if (searchCount === 3) {
-                //     const buyMeACoffee = document.getElementById('buyMeACoffee');
-                //     const promptMessage = document.getElementById('promptMessage');
-                    
-                //     buyMeACoffee.classList.add('centered');
-                //     promptMessage.style.display = 'block';
-                // }
-
-                resolve('Location processed successfully');
-            },
-            error: function(error) {
-                console.log(error);
-                reject('Error processing location');
+            if (!response.ok) {
+                // Handle HTTP errors (like 500, 404 etc.)
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        });
+
+            const data = await response.json();
+
+            // Success logic (moved from success callback)
+            let parser = new DOMParser();
+            let main_content = data.main_content;
+            let reponse_main_content = parser.parseFromString(main_content, "text/html");
+            let video_content = data.video_content;
+            let loc_name = data.loc_name; // Get loc_name from response
+
+            // set marker
+            let h1Element = reponse_main_content.querySelector('h1');
+            let location_title;
+            if (h1Element && h1Element.textContent.trim()) {
+                location_title = h1Element.textContent.trim();
+            } else {
+                // Fallback to loc_name if H1 is missing or empty
+                location_title = loc_name ? loc_name : 'Unknown Location';
+            }
+
+            let newMarkerId = addMarkerAtClick(lngLat, main_content, location_title); // Use returned ID
+            addButtonForMarker(newMarkerId, location_title, lngLat.lng, lngLat.lat, video_content);
+            highlight_active_marker(newMarkerId); // Highlight the newly added marker
+
+            // video embed;
+            embed_loc_video(video_content);
+
+            // display main_content
+            displayInfoInPanel(main_content);
+
+            // Fetch weather for the clicked location, passing location_title as a hint
+            fetchWeatherForecast(lngLat.lat, lngLat.lng, location_title);
+
+            resolve('Location processed successfully');
+
+        } catch (error) {
+            console.error("Error processing location:", error); // Log the error
+            // Optionally: Display a user-friendly error message in the UI
+            displayInfoInPanel("<p>Sorry, couldn't fetch information for this location.</p>");
+            reject('Error processing location: ' + error.message); // Reject the promise
+        }
     });
 }
-
-// document.getElementById('noButton').addEventListener('click', function() {
-//     const buyMeACoffee = document.getElementById('buyMeACoffee');
-//     const promptMessage = document.getElementById('promptMessage');
-    
-//     buyMeACoffee.classList.remove('centered');
-//     promptMessage.style.display = 'none';
-//     searchCount = 0; // Reset the search count
-// });
-
-// document.getElementById('yesButton').addEventListener('click', function() {
-//     window.open('https://www.buymeacoffee.com/mikec2611', '_blank');
-//     buyMeACoffee.classList.remove('centered');
-//     promptMessage.style.display = 'none';
-//     searchCount = 0; // Reset the search count
-// });
-
-
 
 spinGlobe();
 
@@ -667,9 +640,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
 window.addEventListener('resize', debounce(adjustSidePanelHeight, 150));
 
 // Function to fetch and display weather forecast
-async function fetchWeatherForecast(latitude, longitude) {
-    const weatherContainer = document.getElementById('weather-forecast');
-    weatherContainer.innerHTML = '<p>Loading weather...</p>'; // Show loading state
+async function fetchWeatherForecast(latitude, longitude, locationNameHint = null) {
+    // Target the new container for location-specific weather
+    const locationWeatherContainer = document.getElementById('location-weather-display');
+    const globalWeatherContainer = document.getElementById('global-weather-stats');
+    
+    // Show loading state in the specific container
+    locationWeatherContainer.innerHTML = '<p>Loading weather...</p>'; 
+    // Hide global stats when starting to load specific ones
+    if (globalWeatherContainer) globalWeatherContainer.style.display = 'none'; 
+    // Ensure the location container is visible (might be hidden on error previously)
+    locationWeatherContainer.style.display = 'block';
 
     try {
         // First, fetch the API key from our backend
@@ -695,44 +676,66 @@ async function fetchWeatherForecast(latitude, longitude) {
             throw new Error(`Weather API Error: ${weatherResponse.status} - ${errorData.message || 'Unknown error'}`);
         }
         const data = await weatherResponse.json();
-        // Pass lat/lon along with data
-        await displayWeatherForecast(data, latitude, longitude);
+        // Pass lat/lon and the name hint along with data
+        await displayWeatherForecast(data, latitude, longitude, locationNameHint);
 
     } catch (error) {
         console.error('Failed to fetch weather forecast:', error);
-        weatherContainer.innerHTML = `<p style="color: red;">Could not load weather forecast. ${error.message}</p>`;
-        // Optionally, add a retry button or specific instructions
+        // Display error in the specific container
+        locationWeatherContainer.innerHTML = `<p style="color: red;">Could not load weather forecast. ${error.message}</p>`;
+        // Show global stats again on error? Or just leave the error? Let's leave the error.
+        // if (globalWeatherContainer) globalWeatherContainer.style.display = 'block'; 
     }
 }
 
 // Function to process and display the 5-day forecast data
-async function displayWeatherForecast(data, latitude, longitude) {
-    const weatherContainer = document.getElementById('weather-forecast');
+async function displayWeatherForecast(data, latitude, longitude, locationNameHint = null) {
+    // Target the new container for location-specific weather
+    const locationWeatherContainer = document.getElementById('location-weather-display');
+    const globalWeatherContainer = document.getElementById('global-weather-stats');
     
-    let locationName = 'Weather Forecast'; // Default fallback
-    
-    // Check if city name exists in OpenWeatherMap data
-    if (data.city && data.city.name) {
+    // Hide global stats as we are about to display specific ones
+    if (globalWeatherContainer) globalWeatherContainer.style.display = 'none';
+    // Ensure the location container is visible
+    locationWeatherContainer.style.display = 'block';
+
+    let locationName = locationNameHint || 'Weather Forecast'; // Use hint if available, otherwise default
+    let needsReverseGeocode = !locationNameHint; // Only geocode if hint wasn't provided
+
+    // Check if city name exists in OpenWeatherMap data AND if we didn't get a hint
+    if (needsReverseGeocode && data.city && data.city.name) {
         locationName = data.city.name;
-    } else if (latitude !== undefined && longitude !== undefined) {
-        // If no name, try reverse geocoding
+        needsReverseGeocode = false; // Found name from OWM, no need to geocode
+    } 
+    
+    // Set the initial header in the specific container
+    locationWeatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
+
+    // If we still need a name (no hint, no OWM name) and have coords, try reverse geocoding
+    if (needsReverseGeocode && latitude !== undefined && longitude !== undefined) {
         locationName = 'Loading location...'; // Temporary name
-        // Update the header immediately with loading state
-        weatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
+        locationWeatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; // Update header
         try {
             const geocodedName = await reverseGeocode(latitude, longitude);
             locationName = geocodedName; // Update name with result
+             // Update the final header again after geocoding
+            locationWeatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
         } catch (error) { 
             // Error already logged in reverseGeocode, keep fallback from there
             locationName = `Area near ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+             // Update the final header again with fallback
+            locationWeatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
         }
-    } // else, keep the default 'Weather Forecast' if coordinates are also missing
+    } // else locationName remains the hint, OWM name, or the initial default
 
-    // Set the final header (or update if reverse geocoding was used)
-    weatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`; 
+    // Ensure header is set correctly if we skipped geocoding but had a hint/OWM name
+    if (locationWeatherContainer.querySelector('h2').textContent !== `5-Day Forecast - ${locationName}`) {
+         locationWeatherContainer.innerHTML = `<h2>5-Day Forecast - ${locationName}</h2>`;
+    }
 
     if (!data || !data.list) {
-        weatherContainer.innerHTML += '<p>No forecast data available.</p>';
+        // Append error message to the header already set
+        locationWeatherContainer.innerHTML += '<p>No forecast data available.</p>';
         return;
     }
 
@@ -783,6 +786,7 @@ async function displayWeatherForecast(data, latitude, longitude) {
             <div class="weather-extra">Humidity: ${avgHumidity}%</div>
             <div class="weather-extra">Wind: ${avgWind} m/s</div>
         `;
-        weatherContainer.appendChild(dayElement);
+        // Append to the specific location container
+        locationWeatherContainer.appendChild(dayElement);
     });
 }

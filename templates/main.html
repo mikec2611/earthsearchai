@@ -59,12 +59,12 @@
                     <h1>Earth</h1>
                     <p>
                         <ul class="info-list"> 
-                            <li class="info-item"><b class="category-title">Global Rank:</b> The third planet from the Sun.</li>
-                            <li class="info-item"><b class="category-title">Life:</b> The only known planet to support life.</li>
-                            <li class="info-item"><b class="category-title">Surface Composition:</b> About 71% of Earth's surface is covered by water, with the remaining 29% consisting of continents and islands.</li>
-                            <li class="info-item"><b class="category-title">Atmosphere:</b> Composed of 78% nitrogen, 21% oxygen, and trace amounts of other gases.</li>
-                            <li class="info-item"><b class="category-title">Natural Satellite:</b> Earth has one natural satellite, the Moon, which influences tides and stabilizes the planet's rotation.</li>
-                            <li class="info-item"><b class="category-title">Magnetic Field:</b> Protects the planet from harmful solar radiation and cosmic rays.</li>
+                            <li class="info-item"><b class="category-title">Global Rank -</b> The third planet from the Sun.</li>
+                            <li class="info-item"><b class="category-title">Life -</b> The only known planet to support life.</li>
+                            <li class="info-item"><b class="category-title">Surface Composition -</b> About 71% of Earth's surface is covered by water, with the remaining 29% consisting of continents and islands.</li>
+                            <li class="info-item"><b class="category-title">Atmosphere -</b> Composed of 78% nitrogen, 21% oxygen, and trace amounts of other gases.</li>
+                            <li class="info-item"><b class="category-title">Natural Satellite -</b> Earth has one natural satellite, the Moon, which influences tides and stabilizes the planet's rotation.</li>
+                            <li class="info-item"><b class="category-title">Magnetic Field -</b> Protects the planet from harmful solar radiation and cosmic rays.</li>
                         </ul>
                     </p>
                 </div>
@@ -80,7 +80,37 @@
                     Video sourced from Youtube. Results may vary.
                 </div>
                 <div id="weather-forecast" class="weather-forecast-container">
-                    <!-- Weather forecast will be loaded here -->
+                    <!-- Default Global Weather Stats -->
+                    <div id="global-weather-stats">
+                        <h2>Global Weather Overview</h2>
+                        <div class="weather-day global-weather-fact">
+                            <span class="weather-icon-emoji">🌡️</span>
+                            <div class="weather-desc">Avg. surface temp: ~15.2°C (59.4°F)</div>
+                        </div>
+                        
+                        <div class="weather-day global-weather-fact">
+                            <span class="weather-icon-emoji">🌧️</span>
+                            <div class="weather-desc">~1m precipitation/year planet-wide</div>
+                        </div>
+
+                        <div class="weather-day global-weather-fact">
+                            <span class="weather-icon-emoji">⚡</span>
+                            <div class="weather-desc">~44 lightning flashes/sec globally</div>
+                        </div>
+
+                        <div class="weather-day global-weather-fact">
+                            <span class="weather-icon-emoji">☁️</span>
+                            <div class="weather-desc">~67% avg. global cloud cover</div>
+                        </div>
+
+                        <div class="weather-day global-weather-fact">
+                            <span class="weather-icon-emoji">💨</span>
+                            <div class="weather-desc">Polar jet stream avg: ~110 mph</div>
+                        </div>
+
+                    </div>
+                    <!-- Container for location-specific weather -->
+                    <div id="location-weather-display"></div>
                 </div>
                 <div id="openweathermap_citation" class="api_citation">
                     <i class="fas fa-exclamation-circle"></i>

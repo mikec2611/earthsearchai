@@ -634,17 +634,26 @@ button[disabled] {
 }
 
 .weather-icon {
-    width: 30px;
-    height: 30px;
-    margin-right: 8px;
-    background-color: #555;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.weather-icon-emoji {
+    display: inline-block;
+    margin-right: 0.5em;
+    font-size: 1.5em;
+    vertical-align: middle;
+    width: 1.2em;
+    text-align: center;
 }
 
 .weather-temp {
+    font-size: 1.1em;
+    font-weight: bold;
     min-width: 70px;
     margin-right: 8px;
-    font-weight: bold;
     color: #ffffff;
 }
 
