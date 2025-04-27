@@ -639,6 +639,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
 // Adjust panel height on window resize
 window.addEventListener('resize', debounce(adjustSidePanelHeight, 150));
 
+// --- Helper Function for Temperature Color Scale ---
+function getTempColor(tempF) {
+    if (tempF === undefined || tempF === null) return '#e0e0e0'; // Default color for missing data
+
+    if (tempF < 32) return '#6495ED';    // Cornflower Blue (Very Cold)
+    if (tempF < 50) return '#87CEEB';    // Sky Blue (Cold)
+    if (tempF < 65) return '#ADD8E6';    // Light Blue (Cool)
+    if (tempF <= 75) return '#f0f0f0';   // Light Grey (Comfortable)
+    if (tempF <= 85) return '#FFD700';    // Gold (Warm)
+    if (tempF <= 95) return '#FFA500';    // Orange (Hot)
+    return '#FF4500';                   // OrangeRed (Very Hot)
+}
+
 // Function to fetch and display weather forecast
 async function fetchWeatherForecast(latitude, longitude, locationNameHint = null) {
     // Target the new container for location-specific weather
@@ -776,12 +789,19 @@ async function displayWeatherForecast(data, latitude, longitude, locationNameHin
         const mostFrequentIcon = Object.keys(dayData.icons).reduce((a, b) => dayData.icons[a] > dayData.icons[b] ? a : b);
         const iconUrl = `https://openweathermap.org/img/wn/${mostFrequentIcon}.png`;
 
+        const maxTempColor = getTempColor(maxTemp);
+        const minTempColor = getTempColor(minTemp);
+
         const dayElement = document.createElement('div');
         dayElement.classList.add('weather-day');
+        // Format the temperature string with spans and colors
         dayElement.innerHTML = `
             <div class="weather-date">${date}</div>
             <img src="${iconUrl}" alt="${mostFrequentDesc}" class="weather-icon">
-            <div class="weather-temp">${maxTemp}°F / ${minTemp}°F</div>
+            <div class="weather-temp">
+                H: <span style="color: ${maxTempColor}; font-weight: 600;">${maxTemp}°F</span> |
+                L: <span style="color: ${minTempColor}; font-weight: 600;">${minTemp}°F</span>
+            </div>
             <div class="weather-desc">${mostFrequentDesc}</div>
             <div class="weather-extra">Humidity: ${avgHumidity}%</div>
             <div class="weather-extra">Wind: ${avgWind} m/s</div>
