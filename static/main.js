@@ -761,13 +761,11 @@ async function displayWeatherForecast(data, latitude, longitude, locationNameHin
                 temps: [],
                 descriptions: {},
                 icons: {},
-                humidity: [],
-                wind: []
+                humidity: []
             };
         }
         dailyForecasts[date].temps.push(item.main.temp);
         dailyForecasts[date].humidity.push(item.main.humidity);
-        dailyForecasts[date].wind.push(item.wind.speed);
 
         // Store descriptions and icons counts to find the most frequent one for the day
         const desc = item.weather[0].description;
@@ -782,7 +780,6 @@ async function displayWeatherForecast(data, latitude, longitude, locationNameHin
         const maxTemp = Math.round(Math.max(...dayData.temps));
         const minTemp = Math.round(Math.min(...dayData.temps));
         const avgHumidity = Math.round(dayData.humidity.reduce((a, b) => a + b, 0) / dayData.humidity.length);
-        const avgWind = (dayData.wind.reduce((a, b) => a + b, 0) / dayData.wind.length).toFixed(1);
 
         // Find most frequent description and icon
         const mostFrequentDesc = Object.keys(dayData.descriptions).reduce((a, b) => dayData.descriptions[a] > dayData.descriptions[b] ? a : b);
@@ -798,15 +795,13 @@ async function displayWeatherForecast(data, latitude, longitude, locationNameHin
         dayElement.innerHTML = `
             <div class="weather-date">${date}</div>
             <img src="${iconUrl}" alt="${mostFrequentDesc}" class="weather-icon">
+            <div class="weather-desc">${mostFrequentDesc}</div>
             <div class="weather-temp">
                 H: <span style="color: ${maxTempColor}; font-weight: 600;">${maxTemp}°F</span> |
                 L: <span style="color: ${minTempColor}; font-weight: 600;">${minTemp}°F</span>
             </div>
-            <div class="weather-desc">${mostFrequentDesc}</div>
-            <div class="weather-extra">Humidity: ${avgHumidity}%</div>
-            <div class="weather-extra">Wind: ${avgWind} m/s</div>
+            <div class="weather-extra">${avgHumidity}%</div>
         `;
-        // Append to the specific location container
         locationWeatherContainer.appendChild(dayElement);
     });
 }

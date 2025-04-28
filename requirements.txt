@@ -1,2 +1,4 @@
 Flask>=2.0
-python-dotenv>=0.19 
+python-dotenv>=0.19
+google-api-python-client>=2.0.0
+livereload>=2.6.3 
