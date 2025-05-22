@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /sitemap.xml
+Disallow: /admin/
+Disallow: /private/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /phpinfo.php
+Disallow: /*.xml$
+Disallow: /*.json$
+Sitemap: https://www.earthsearch.ai/sitemap.xml

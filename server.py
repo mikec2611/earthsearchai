@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import re
 import os
 import json
+import html
 
 
 from openai import OpenAI
@@ -204,7 +205,7 @@ def coordinates():
                 gpt_response_clean = gpt_response_raw
                 
             gpt_data = json.loads(gpt_response_clean) 
-            location_name_from_gpt = gpt_data.get("location_name", "Unknown Location")
+            location_name_from_gpt = html.escape(gpt_data.get("location_name", "Unknown Location"))
             facts = gpt_data.get("facts", [])
 
             # Build the HTML string from the parsed JSON
@@ -212,8 +213,8 @@ def coordinates():
             # Start the list
             main_content_html += '<ul class="info-list">' 
             for fact in facts:
-                category = fact.get("category", "")
-                content = fact.get("content", "")
+                category = html.escape(fact.get("category", ""))
+                content = html.escape(fact.get("content", ""))
                 # Format each fact as a list item with a hyphen inside the bold tag
                 main_content_html += f'<li class="info-item"><b class="category-title">{category} -</b> {content}</li>'
             # Close the list
