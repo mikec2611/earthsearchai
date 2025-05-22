@@ -31,7 +31,7 @@
     --accent-color: #77ccff;
     --hover-transition: all 0.3s ease;
     --content-gap: 8px;
-    --section-padding: 8px;
+    --section-padding: 2px;
 
     --side-panel-color:rgb(208, 208, 208);
     --side-panel-text-color:rgb(255, 255, 255);
@@ -45,10 +45,10 @@
 /* Base font sizes for different screen sizes */
 @media (min-width: 1200px) {
     :root {
-        --base-font-size: 0.65em;
+        --base-font-size: 1em;
         --heading-font-size: 1.1em;
-        --subheading-font-size: 0.85em;
-        --location-weather-font-size: 0.55em;
+        --subheading-font-size: 0.95em;
+        --location-weather-font-size: 0.75em;
     }
 }
 
@@ -110,12 +110,25 @@
 }
 
 @media (max-width: 576px) {
+    :root {
+        --base-font-size: 0.75em;       /* Target 12px (12/16) */
+        --heading-font-size: 1em;  /* Target 15px (15/16) */
+        --subheading-font-size: 0.8125em;/* Target 13px (13/16) */
+        --location-weather-font-size: 0.6875em; /* Target 11px (11/16) */
+    }
+
     body {
-        font-size: 8px;
+        font-size: 12px; /* Increased from 8px */
     }
 
     .api_citation {
-        font-size: 0.5em;
+        font-size: 10px; /* Increased from 0.5em (which was 4px) */
+    }
+
+    #map {
+        height: 67vh; /* 100vh (total) - 33vh (panel height) */
+        bottom: auto; /* Override general style 'bottom: 0' */
+        /* top: 0; and width: 100%; from general styles remain active */
     }
 }
 
@@ -210,42 +223,6 @@ button[disabled] {
     backdrop-filter: blur(10px);
 }
 
-.side-panel.hidden {
-    transform: translateX(-110%);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.hide-panel-button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0, 0, 0, 0.2);
-    border: none;
-    color: var(--text-tertiary);
-    font-size: 18px;
-    cursor: pointer;
-    z-index: 1001;
-    transition: var(--hover-transition);
-    padding: 8px;
-    line-height: 1;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hide-panel-button:hover {
-    color: var(--text-primary);
-    background: rgba(0, 0, 0, 0.3);
-    transform: rotate(-90deg);
-}
-
-.hide-panel-button i {
-    display: block;
-}
 
 .side-panel-title {
     padding: 15px 20px;
@@ -268,18 +245,9 @@ button[disabled] {
 }
 
 #content_container {
-    background-color: var(--content-bg);
-    border: 1px solid var(--panel-border-color);
-    border-radius: 6px;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
     padding: 0.5em;
     margin-bottom: 0;
-    transition: var(--hover-transition);
-}
-
-#content_container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
 }
 
 #content_container h1 {
@@ -295,28 +263,20 @@ button[disabled] {
 
 .info-list {
     padding-left: 2px;
-    margin: 0;
+    margin: 0px;
     list-style-type: none;
 }
 
 .info-item {
-    margin-bottom: 3px;
+    margin-bottom: 1px;
     line-height: 1.2;
     font-size: var(--base-font-size);
-    padding: 2px;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    transition: var(--hover-transition);
-}
-
-.info-item:hover {
-    background-color: rgba(0, 0, 0, 0.2);
-    transform: translateX(4px);
+    padding: 1px;
 }
 
 .category-title {
     color: var(--accent-color);
-    margin-right: 5px;
+    margin-right: 2px;
     font-weight: 600;
 }
 
@@ -341,11 +301,6 @@ button[disabled] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     background-color: #000;
     margin-bottom: 0.5em;
-}
-
-#loc_video:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .video_container {
@@ -380,7 +335,7 @@ button[disabled] {
 }
 
 .side-panel ul li {
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
 }
 
 .info_button {
@@ -417,7 +372,7 @@ button[disabled] {
     flex-direction: column;
     position: absolute;
     right: 0;
-    width: 20%;
+    width: 25%;
     min-width: 200px;
     max-width: 300px;
     top: 0;
@@ -454,7 +409,7 @@ button[disabled] {
     flex-direction: column;
     overflow-y: auto;
     flex-grow: 1;
-    width: 70%;
+    width: 100%;
     max-height: 40vh;
     gap: 0.5em;
 }
@@ -718,18 +673,10 @@ button[disabled] {
 }
 
 .weather-forecast-container {
-    background-color: var(--content-bg);
-    border: 1px solid var(--panel-border-color);
-    border-radius: 6px;
     padding: var(--section-padding);
     margin: 0;
-    transition: var(--hover-transition);
 }
 
-.weather-forecast-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-}
 
 .weather-forecast-container h2 {
     margin-top: 0;
@@ -737,6 +684,7 @@ button[disabled] {
     font-size: var(--subheading-font-size);
     color: var(--text-primary);
     border-bottom: 1px solid var(--panel-border-color);
+    text-align: center;
     padding-bottom: 3px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -746,21 +694,10 @@ button[disabled] {
     align-items: center;
     gap: 4px;
     padding: 3px;
-    border-bottom: 1px solid var(--panel-border-color);
-    transition: var(--hover-transition);
-}
-
-.weather-day:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-    transform: translateX(4px);
-}
-
-.weather-day:last-child {
-    border-bottom: none;
 }
 
 .weather-icon-emoji {
-    font-size: 1em;
+    font-size: 2em;
     min-width: 20px;
     text-align: center;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
@@ -819,30 +756,245 @@ button[disabled] {
 
 @media (max-width: 576px) {
     .side-panel {
-        width: 90%;
-        left: 5%;
-        top: 5%;
+        width: 100%; /* Full width on mobile */
+        left: 0; /* Align to left edge */
+        top: auto; /* Remove top positioning */
+        bottom: 0; /* Stick to bottom */
+        height: 33vh; /* Bottom third of the screen */
+        max-width: none; /* Allow full width */
+        border-radius: 0; /* No rounded corners for bottom panel */
+        transform: translateY(100%); /* Hidden state: below the screen */
+        display: flex; /* Enable flex for inner container */
+        flex-direction: column; /* Stack title and scroll container vertically */
     }
-    
+
+    .side-panel.hidden {
+        transform: translateY(100%); /* Keep it hidden below */
+    }
+
+    /* Adjustments for when panel is shown on mobile */
+    .side-panel:not(.hidden) {
+        transform: translateY(0); /* Visible state: slide up from bottom */
+    }
+
     .panel-content-wrapper {
-        max-height: calc(90vh - 30px);
-        padding: 4px;
+        overflow-y: hidden; /* Disable vertical scroll on the wrapper */
+        height: auto;       /* Let the new scroll container manage height */
+        flex-grow: 1;       /* Allow wrapper to take available space */
+    }
+
+    .panel-content-scroll-container {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden; /* No vertical scroll here */
+        height: 100%; /* Fill the content wrapper */
+        scroll-snap-type: x mandatory; /* Optional: for snapping effect */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+
+    .panel-content-scroll-container > div {
+        flex: 0 0 90vw; /* Each section takes 90% of viewport width */
+        min-width: 90vw; /* Ensure it doesn't shrink below this */
+        height: 100%;    /* Sections take full height of scroll container */
+        overflow-y: auto; /* Allow vertical scroll within each section if needed */
+        scroll-snap-align: start; /* Snap to start of each section */
+        margin-right: 10px; /* Space between sections */
+        padding: 10px;
+        box-sizing: border-box;
     }
     
-    .hide-panel-button {
-        top: 6px;
-        right: 6px;
+    .panel-content-scroll-container > div:last-child {
+        margin-right: 0;
     }
+
+    /* Adjustments from previous mobile styles if they conflict */
     #right_panel {
-        width: 90%;
-        right: 5%;
-        top: 5%;
+        /* If #right_panel contains search/history and should be hidden or repositioned */
+        display: none; /* Example: hide right_panel on small screens */
     }
     
     #map_rotate_btns {
-        top: 0.5%;
-        padding: 0.3em;
+        /* Adjust if it overlaps with new panel or button */
+        top: 10px; 
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1001; /* Ensure it's above the panel if it overlaps slightly */
     }
+
+    .mobile-tabs-nav {
+        display: flex; /* Changed from none to flex to show on mobile */
+        justify-content: space-around;
+        background-color: rgba(0,0,0,0.2); /* Light background for tab bar */
+        border-bottom: 1px solid var(--panel-border-color);
+        flex-shrink: 0; /* Prevent tab bar from shrinking */
+        order: 1; /* Place tab nav after title but before content wrapper */
+    }
+
+    .mobile-tab-button {
+        padding: 5px 4px;
+        border: none;
+        background-color: transparent;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        font-size: 0.9em; /* Adjusted font size */
+        flex-grow: 1;
+        text-align: center;
+        border-bottom: 3px solid transparent; /* For active state indication */
+        transition: color 0.3s ease, border-bottom-color 0.3s ease;
+    }
+
+    .mobile-tab-button.active-tab {
+        color: var(--accent-color);
+        font-weight: bold;
+        border-bottom-color: var(--accent-color);
+    }
+    
+    .side-panel-title {
+        order: 0; /* Ensure title is first */
+        text-align: center; /* Center title on mobile */
+        padding: 10px 0;
+        font-size: 1.1em;
+        flex-shrink: 0;
+    }
+
+    .panel-content-wrapper {
+        order: 2; /* Place content wrapper after tab nav */
+        overflow-y: auto; /* Allow vertical scroll for the active tab content */
+        height: 100%; /* Ensure it tries to fill remaining space */
+    }
+
+    /* Remove styles for panel-content-scroll-container as it's no longer used for tabs */
+    .panel-content-scroll-container {
+        display: none; /* Hide the old scroll container */
+    }
+
+    .tab-panel {
+        display: none; /* Hide all tab panels by default */
+        height: 100%; /* Take full height of the wrapper */
+        overflow-y: auto; /* Allow scrolling within the tab panel */
+        padding: 0; /* MODIFIED: Removed padding for mobile */
+        box-sizing: border-box;
+    }
+
+    .tab-panel.active-tab-panel {
+        display: block; /* Show only the active tab panel */
+    }
+
+    /* Ensure specific content containers within tabs take up appropriate space */
+    #content_container, 
+    #loc_video_container, 
+    #weather_container_mobile {
+        width: 100%; 
+        height: auto; /* Adjust height as needed, or 100% if they should fill the tab panel */
+        margin-right: 0; /* Reset margin from previous scroll layout */
+    }
+    
+    #loc_video_container, #weather_container_mobile {
+      height: 100%; /* Make video and weather containers fill the tab panel space */
+    }
+
+    #loc_video {
+        height: 100%; /* Make video player responsive within its container */
+        padding-bottom: 0; /* Override previous aspect ratio padding if not needed */
+    }
+
+    .video_container {
+        height: 100%; /* Ensure iframe fills its parent */
+    }
+
+    #weather-forecast {
+        height: 100%; /* Weather forecast takes full height of its tab */
+    }
+}
+
+/* Styles for screens wider than mobile (desktop) */
+@media (min-width: 577px) {
+    .side-panel {
+        display: flex;
+        flex-direction: column;
+        height: fit-content; 
+        max-height: calc(100vh - 40px); 
+        top: 50%;
+        left: 30px; /* MODIFIED: Increased from 10px to move panel to the right */
+        transform: translateY(-50%); 
+        overflow-y: auto; 
+    }
+
+    .side-panel.hidden {
+        transform: translateX(-110%) translateY(-50%); /* Slide out from centered position */
+        opacity: 0; /* General style, good to ensure */
+        /* pointer-events: none; (from general style) */
+    }
+
+    .mobile-tabs-nav {
+        display: none; /* Hide mobile tab navigation */
+    }
+
+    .side-panel-title {
+        order: initial; /* Reset flex order from mobile */
+        /* Restore original desktop styles that might have been changed for mobile tabs */
+        padding: 15px 20px; /* Original desktop padding */
+        font-size: 1.6em;   /* Original desktop font-size */
+        text-align: center; /* Original desktop alignment */
+        /* Other properties like color, font-weight, border-bottom, flex-shrink are general styles */
+    }
+
+    .panel-content-wrapper {
+        order: initial; /* Reset flex order from mobile */
+        flex-grow: 1;   /* Allow content wrapper to fill available vertical space in .side-panel */
+        height: auto;   /* Override fixed calc height if using flex-grow */
+        min-height: 0;  /* Prevents overflow issues with flex-grow in some browsers */
+        overflow-y: auto; /* For scrolling its own content */
+        
+        /* Its internal content layout (general styles, re-affirmed) */
+        display: flex;
+        flex-direction: column;
+        gap: var(--content-gap);
+        padding: var(--section-padding);
+    }
+
+    .tab-panel { /* These are the direct children of .panel-content-wrapper on desktop */
+        display: block; /* Make the tab panels (our content holders) visible */
+        padding: 0;     /* Remove mobile-specific tab padding */
+        /* Spacing is handled by the `gap` in .panel-content-wrapper */
+    }
+
+    #loc_video_container {
+        height: auto; /* Let #loc_video define size */
+    }
+
+    #loc_video { /* Reapply precise desktop styles for loc_video */
+        width: 100%;
+        height: 0;
+        padding-bottom: 65%; /* MODIFIED: Increased from 56.25% for a taller aspect ratio */
+        position: relative;
+        margin-bottom: 0.5em; 
+        border-radius: 6px; 
+        overflow: hidden; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+        background-color: #000; 
+    }
+
+    .video_container { /* The iframe itself */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    #weather_container_mobile {
+        height: auto; /* Let #weather-forecast define size */
+    }
+    
+    .weather-forecast-container { /* This is #weather-forecast inside #weather_container_mobile */
+        height: auto; /* Let its content define its height */
+        margin:0; /* Ensure no mobile-specific margin persists */
+        /* It has its own padding and border styles, should be fine */
+    }
+    
+    /* API citations are display:none by a general rule. This will persist on desktop. */
 }
 
 #openweathermap_citation {
@@ -852,7 +1004,6 @@ button[disabled] {
 .panel-content-wrapper {
     padding: var(--section-padding);
     overflow-y: auto;
-    height: calc(100vh - 30px);
     display: flex;
     flex-direction: column;
     gap: var(--content-gap);
@@ -929,13 +1080,11 @@ button[disabled] {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 3px;
-    border-bottom: 1px solid var(--panel-border-color);
-    transition: var(--hover-transition);
+    padding: 1px;
 }
 
 #global-weather-stats .weather-icon-emoji {
-    font-size: 1em;
+    font-size: 1.8em;
     min-width: 20px;
     text-align: center;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));

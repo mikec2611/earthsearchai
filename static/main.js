@@ -61,15 +61,58 @@ let clickCounter = 0; // Counter for clicks and marker IDs
 let savedLocations = []; // Array to store location details
 let isPanelShown = false;
 
+// Function to switch tabs on mobile
+function switchToTab(tabName) {
+    if (window.innerWidth > 576) return; // Only run on mobile
+
+    // Update tab buttons
+    document.querySelectorAll('.mobile-tab-button').forEach(button => {
+        button.classList.remove('active-tab');
+        if (button.dataset.tab === tabName) {
+            button.classList.add('active-tab');
+        }
+    });
+
+    // Update tab panels
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active-tab-panel');
+        if (panel.id === tabName + '-tab-panel') {
+            panel.classList.add('active-tab-panel');
+        }
+    });
+}
+
+// Modify displayInfoInPanel to switch to info tab on mobile
 function displayInfoInPanel(content) {
     document.getElementById('content_container').innerHTML = content;
+    const sidePanel = document.querySelector('.side-panel');
+    const showPanelButton = document.getElementById('showPanelButton');
+
     if (!isPanelShown) {
-        const sidePanel = document.querySelector('.side-panel');
-        sidePanel.style.transform = 'translateX(0)';
-        // $('#map').css('margin-left', '10%');
-        // $('#map_rotate_btns').css('margin-left', '10%');
-        // map.resize();
+        if (window.innerWidth <= 576) { // Mobile
+            sidePanel.classList.remove('hidden');
+            map.resize(); // Adjust map size
+        } else { // Desktop
+            sidePanel.classList.remove('hidden');
+        }
         isPanelShown = true;
+        if (showPanelButton) showPanelButton.style.display = 'none';
+    }
+    if (window.innerWidth <= 576) {
+        switchToTab('info');
+    }
+}
+
+// Modify embed_loc_video to switch to video tab on mobile
+function embed_loc_video(location_video) {
+    document.getElementById('loc_video').innerHTML = location_video;
+    if (window.innerWidth <= 576) {
+        switchToTab('video');
+        if (!isPanelShown) {
+            showSidePanel(); // This calls map.resize() internally if mobile
+        } else {
+            map.resize(); // If panel already shown, still ensure map resizes for this tab content
+        }
     }
 }
 
@@ -196,10 +239,6 @@ function addButtonForMarker(markerID, locationTitle, longitude, latitude, video_
     });
 }
 
-function embed_loc_video(location_video) {
-    document.getElementById('loc_video').innerHTML = location_video
-}
-
 function startRotation() {
     spinEnabled = true;
     spinGlobe();
@@ -210,15 +249,31 @@ function stopRotation() {
 }
 
 
-// Example function to show side panel with specific content
-function showSidePanel(content) {
-    document.getElementById('side-panel').innerHTML = content;
-    document.querySelector('.side-panel').style.transform = 'translateX(0)';
+// Example function to show side panel with specific content (less used now, displayInfoInPanel is primary)
+function showSidePanel() { 
+    const sidePanel = document.querySelector('.side-panel');
+    const showPanelButton = document.getElementById('showPanelButton');
+    if (window.innerWidth <= 576) { // Mobile
+        sidePanel.classList.remove('hidden');
+        map.resize(); // Adjust map size
+    } else { // Desktop
+        sidePanel.classList.remove('hidden');
+    }
+    isPanelShown = true;
+    if (showPanelButton) showPanelButton.style.display = 'none';
 }
 
-// Example function to hide side panel
 function hideSidePanel() {
-    document.querySelector('.side-panel').style.transform = 'translateX(-100%)';
+    const sidePanel = document.querySelector('.side-panel');
+    const showPanelButton = document.getElementById('showPanelButton');
+    if (window.innerWidth <= 576) { // Mobile
+        sidePanel.classList.add('hidden');
+        map.resize(); // Adjust map size
+    } else { // Desktop
+        sidePanel.classList.add('hidden');
+    }
+    isPanelShown = false;
+    if (showPanelButton) showPanelButton.style.display = 'block';
 }
 
 // Pause spinning on interaction
@@ -569,26 +624,23 @@ async function reverseGeocode(latitude, longitude) {
 
 // --- Panel Height Adjustment ---
 function adjustSidePanelHeight() {
-    const appTitle = document.getElementById('app_title');
-    const sidePanel = document.getElementById('side-panel');
-    const showPanelButton = document.getElementById('showPanelButton'); // Also adjust show button position
-
-    if (appTitle && sidePanel) {
-        const appTitleRect = appTitle.getBoundingClientRect();
-        const panelTopMargin = 15; // Space between title and panel
-        const panelBottomMargin = 10; // Space between panel bottom and viewport bottom
-
-        const panelTop = appTitleRect.bottom + panelTopMargin;
-        const panelHeight = window.innerHeight - panelTop - panelBottomMargin;
-
-        sidePanel.style.top = `${panelTop}px`;
-        sidePanel.style.height = `${panelHeight}px`;
-
-        // Adjust show button position to match panel's intended top/left when hidden
-        if (showPanelButton) {
-            showPanelButton.style.top = `${panelTop}px`;
-            // showPanelButton.style.left is already handled by CSS (left: 10px)
+    if (window.innerWidth > 576) { // Desktop
+        const sidePanel = document.getElementById('side-panel');
+        if (sidePanel) {
+            sidePanel.style.top = ''; 
+            sidePanel.style.height = '';
         }
+        return; 
+    }
+    
+    if (window.innerWidth <= 576) { // Mobile
+        const sidePanel = document.getElementById('side-panel');
+        if(sidePanel) {
+            sidePanel.style.top = ''; 
+            sidePanel.style.height = '';
+        }
+        map.resize(); // Adjust map on resize events if panel is open/closed
+        return;
     }
 }
 
@@ -597,9 +649,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const tutorialModal = document.getElementById('tutorialModal');
     const tutorialOverlay = document.getElementById('tutorialOverlay');
     const closeTutorialButton = document.getElementById('closeTutorial');
-    const sidePanel = document.getElementById('side-panel'); // Get side panel element
-    const hidePanelButton = document.getElementById('hidePanelButton'); // Get hide button element
-    const showPanelButton = document.getElementById('showPanelButton'); // Get show button element
+    const sidePanel = document.getElementById('side-panel'); 
+    const hidePanelButton = document.getElementById('hidePanelButton'); 
+    const showPanelButton = document.getElementById('showPanelButton');
 
     // Check if the user has visited before
     if (!localStorage.getItem('hasVisitedEarthSearch')) {
@@ -616,24 +668,57 @@ document.addEventListener('DOMContentLoaded', (event) => {
         localStorage.setItem('hasVisitedEarthSearch', 'true');
     });
 
-    // Add event listener for the hide panel button
-    if (hidePanelButton && sidePanel && showPanelButton) {
+    // Initial check for panel state on desktop & mobile
+    if (sidePanel) { // Ensure sidePanel exists
+        if (window.innerWidth <= 576) { // Mobile
+            if (sidePanel.classList.contains('hidden')) {
+                if (showPanelButton) showPanelButton.style.display = 'block';
+            } else {
+                if (showPanelButton) showPanelButton.style.display = 'none';
+            }
+        } else { // Desktop
+            // Assume panel is hidden by default via CSS class or initial state
+            if (sidePanel.classList.contains('hidden')) {
+                 if(showPanelButton) showPanelButton.style.display = 'block';
+            } else {
+                 if(showPanelButton) showPanelButton.style.display = 'none';
+            }
+        }
+    }
+
+    if (hidePanelButton) { 
         hidePanelButton.addEventListener('click', () => {
-            sidePanel.classList.add('hidden'); 
-            showPanelButton.style.display = 'block'; // Directly show the button
+            hideSidePanel();
         });
     }
 
-    // Add event listener for the show panel button
-    if (showPanelButton && sidePanel) {
+    if (showPanelButton) {
         showPanelButton.addEventListener('click', () => {
-            sidePanel.classList.remove('hidden'); // Show the panel
-            showPanelButton.style.display = 'none'; // Directly hide the button
+            showSidePanel();
         });
     }
+    
+    // Initial adjustment (now mostly for mobile map resize if panel is open)
+    adjustSidePanelHeight(); 
 
-    // Initial adjustment of panel height
-    adjustSidePanelHeight();
+    // Tab switching event listeners
+    document.querySelectorAll('.mobile-tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            switchToTab(button.dataset.tab);
+        });
+    });
+
+    // Set initial active tab (e.g., 'info') on mobile if panel is shown by default
+    // Or ensure the correct tab is active when panel is first opened.
+    if (window.innerWidth <= 576 && isPanelShown) {
+        // Check current active tab or default to 'info'
+        const currentActiveButton = document.querySelector('.mobile-tab-button.active-tab');
+        if (currentActiveButton) {
+            switchToTab(currentActiveButton.dataset.tab);
+        } else {
+            switchToTab('info'); // Default to info tab
+        }
+    }
 });
 
 // Adjust panel height on window resize
@@ -804,4 +889,13 @@ async function displayWeatherForecast(data, latitude, longitude, locationNameHin
         `;
         locationWeatherContainer.appendChild(dayElement);
     });
+
+    if (window.innerWidth <= 576) {
+        switchToTab('weather');
+        if (!isPanelShown) {
+            showSidePanel(); // This calls map.resize() internally
+        } else {
+            map.resize(); // If panel already shown
+        }
+    }
 }

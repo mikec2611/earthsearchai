@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 
 # # local debug
 load_dotenv()
-print(f"Loaded OPEN_WEATHER_API_KEY: {os.getenv('OPEN_WEATHER_API_KEY')}") # Debug print
 prompt_xml_path = "prompts.xml"
 
 mapbox_token = os.environ.get('MAPBOX_TOKEN')
@@ -161,7 +160,6 @@ def home():
 @app.route('/get-weather-key')
 def get_weather_key():
     api_key = os.getenv("OPEN_WEATHER_API_KEY")
-    print(f"API Key retrieved in endpoint: {api_key}") # Debug print
     if api_key:
         return jsonify({'apiKey': api_key})
     else:
@@ -190,10 +188,10 @@ def coordinates():
         
         # Render the prompt using the template string and context
         rendered_prompt = render_template_string(prompt_template_str, **template_context)
-        print("Rendered Prompt:", rendered_prompt) # Optional: Debugging
+        # print("Rendered Prompt:", rendered_prompt) # Optional: Debugging
 
         gpt_response_raw = get_gpt_info(rendered_prompt)
-        print("Raw GPT Response:", gpt_response_raw) # Optional: Debugging
+        # print("Raw GPT Response:", gpt_response_raw) # Optional: Debugging
 
         main_content_html = "<h1>Error</h1><p>Could not parse AI response.</p>" # Default error HTML
         try:
@@ -251,7 +249,7 @@ def coordinates():
         # print('main_content',main_content)
 
     elif data['prompt_type'] == 'detail':
-        print(data['detail_topic'])
+        # print(data['detail_topic'])
         main_content = 'test'
         video_content = 'test'
 
@@ -273,4 +271,4 @@ def coordinates():
 
 if __name__ == '__main__':
     server = Server(app.wsgi_app)
-    server.serve(port=PORT, host='127.0.0.1', debug=False)
+    server.serve(port=PORT, host='0.0.0.0', debug=False)
