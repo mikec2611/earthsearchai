@@ -28,20 +28,21 @@ const map = new mapboxgl.Map({
     }
 });
 
+let lastInteractionTime = 0;
+let lastLng = 0;
+
 map.on('wheel', () => {
     userInteracting = true;
-    if (spinEnabled) {
-        map.stop();
-    }
+    map.stop(); // Stop any ongoing animation
     if (scrollTimeout !== undefined) {
         clearTimeout(scrollTimeout);
     }
     scrollTimeout = setTimeout(() => {
-        if (!userInteracting && !spinEnabled) {
+        userInteracting = false;
+        if (spinEnabled) {
             spinGlobe();
         }
-        userInteracting = false;
-    }, 200);
+    }, 300); // Increased timeout for wheel
 });
 
 map.on('style.load', () => {
@@ -236,6 +237,7 @@ function addButtonForMarker(markerID, locationTitle, longitude, latitude, video_
         // Fetch weather when a history button is clicked
         // Pass locationTitle as a hint for weather display
         fetchWeatherForecast(latitude, longitude, locationTitle); 
+        if (window.innerWidth <= 576) { switchToTab('info'); }
     });
 }
 
@@ -277,59 +279,95 @@ function hideSidePanel() {
 }
 
 // Pause spinning on interaction
-map.on('mousedown', () => {
+map.on('mousedown', (e) => {
     userInteracting = true;
+    map.stop(); // Stop existing animation
+    lastLng = map.getCenter().lng;
+    lastInteractionTime = performance.now();
 });
 
-// Restart spinning the globe when interaction is complete
-map.on('mouseup', () => {
+map.on('touchstart', (e) => {
+    if (e.points.length === 1) { 
+        userInteracting = true;
+        map.stop();
+        lastLng = map.getCenter().lng;
+        lastInteractionTime = performance.now();
+    }
+});
+
+function applyInertiaOrSpin() {
+    const currentTime = performance.now();
+    const timeDiff = currentTime - lastInteractionTime;
+    const currentLng = map.getCenter().lng;
+    let lngDiff = currentLng - lastLng;
+
+    if (lngDiff > 180) lngDiff -= 360;
+    if (lngDiff < -180) lngDiff += 360;
+
+    const minLngDiffForInertia = 1; // Minimum degrees moved to trigger inertia
+    const minTimeDiffForInertia = 50; // Minimum milliseconds for a swipe to be considered for inertia
+
+    if (timeDiff > minTimeDiffForInertia && Math.abs(lngDiff) > minLngDiffForInertia) {
+        const velocity = lngDiff / timeDiff; 
+        const baseDuration = Math.abs(velocity) * 750; // Adjusted multiplier
+        const inertiaDuration = Math.max(300, Math.min(baseDuration, 2200)); // Min 300ms, Max 2200ms
+        const dampingFactor = 0.33; // Adjusted damping factor
+        const targetLng = currentLng + velocity * inertiaDuration * dampingFactor; 
+        
+        userInteracting = true; // Set userInteracting true during the glide
+        map.easeTo({
+            center: { lng: targetLng, lat: map.getCenter().lat },
+            duration: inertiaDuration,
+            easing: (t) => 1 - Math.pow(1 - t, 4), // Changed to easeOutQuart
+            essential: true
+        });
+        
+        setTimeout(() => {
     userInteracting = false;
+            if (spinEnabled) {
     spinGlobe();
-});
+            }
+        }, inertiaDuration);
+    } else {
+        userInteracting = false;
+        if (spinEnabled) {
+            spinGlobe();
+        }
+    }
+}
 
-// These events account for cases where the mouse has moved
-// off the map, so 'mouseup' will not be fired.
 map.on('dragend', () => {
-    userInteracting = false;
-    spinGlobe();
+    applyInertiaOrSpin();
+});
+
+map.on('touchend', () => {
+    applyInertiaOrSpin();
 });
 
 map.on('pitchend', () => {
     userInteracting = false;
+    if (spinEnabled) {
     spinGlobe();
+    }
 });
+
 map.on('rotateend', () => {
     userInteracting = false;
-    spinGlobe();
-});
-
-// When animation is complete, start spinning if there is no ongoing interaction
-map.on('moveend', () => {
-    spinGlobe();
-});
-
-// Listen for wheel event to pause rotation
-map.on('wheel', () => {
-    userInteracting = true;
     if (spinEnabled) {
-        map.stop(); // Immediately end ongoing animation
+    spinGlobe();
     }
-    // Clear the timeout if it exists
-    if (scrollTimeout !== undefined) {
-        clearTimeout(scrollTimeout);
+});
+
+map.on('moveend', () => {
+    if (!userInteracting && spinEnabled) {
+    spinGlobe();
     }
-    // Set a timeout to restart the rotation
-    scrollTimeout = setTimeout(() => {
-        if (!userInteracting && !spinEnabled) {
-            spinGlobe();
-        }
-        userInteracting = false;
-    }, 200); // 200ms without a 'wheel' event is considered the end of scrolling
 });
 
 let debounceTimer;
 let isRunning = false;
 map.on('click', function(e) {
+    userInteracting = false;
     if (isRunning) {
         return; // Exit if the function is already running
     }
@@ -506,6 +544,7 @@ function run_location_process(lngLat, nearbyFeatureNames = []){
                  embed_loc_video(buttonElement.getAttribute('data-video-content'));
             }
             fetchWeatherForecast(foundLocation.lngLat.lat, foundLocation.lngLat.lng, cachedLocationTitle);
+            if (window.innerWidth <= 576) { switchToTab('info'); }
             resolve('Location retrieved from cache'); // Resolve promise for cached case
             return;
         }
@@ -563,6 +602,7 @@ function run_location_process(lngLat, nearbyFeatureNames = []){
             // Fetch weather for the clicked location, passing location_title as a hint
             fetchWeatherForecast(lngLat.lat, lngLat.lng, location_title);
 
+            if (window.innerWidth <= 576) { switchToTab('info'); }
             resolve('Location processed successfully');
 
         } catch (error) {
@@ -891,7 +931,6 @@ async function displayWeatherForecast(data, latitude, longitude, locationNameHin
     });
 
     if (window.innerWidth <= 576) {
-        switchToTab('weather');
         if (!isPanelShown) {
             showSidePanel(); // This calls map.resize() internally
         } else {
