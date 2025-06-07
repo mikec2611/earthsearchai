@@ -42,6 +42,25 @@
     --add-info-button-text-color: white;
 }
 
+body.light-mode {
+    --panel-bg-gradient-start: rgba(240, 240, 240, 0.97);
+    --panel-bg-gradient-end: rgba(225, 225, 225, 0.97);
+    --panel-border-color: rgba(0, 0, 0, 0.15);
+    --text-primary: #000000;
+    --text-secondary: #222222;
+    --text-tertiary: #555555;
+    --accent-color: #007bff;
+}
+
+body.light-mode #map_rotate_btns {
+    background-color: #f0f0f0;
+}
+
+body.light-mode .map_rotate_btn {
+    background-color: #ffffff;
+    color: #000000;
+}
+
 /* Base font sizes for different screen sizes */
 @media (min-width: 1200px) {
     :root {

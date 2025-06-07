@@ -689,9 +689,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const tutorialModal = document.getElementById('tutorialModal');
     const tutorialOverlay = document.getElementById('tutorialOverlay');
     const closeTutorialButton = document.getElementById('closeTutorial');
-    const sidePanel = document.getElementById('side-panel'); 
-    const hidePanelButton = document.getElementById('hidePanelButton'); 
+    const sidePanel = document.getElementById('side-panel');
+    const hidePanelButton = document.getElementById('hidePanelButton');
     const showPanelButton = document.getElementById('showPanelButton');
+    const themeToggleBtn = document.getElementById('themeToggle');
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.body.classList.remove('light-mode');
+            if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    }
+
+    const savedTheme = localStorage.getItem('theme');
+    applyTheme(savedTheme);
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const isLight = document.body.classList.contains('light-mode');
+            const newTheme = isLight ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
 
     // Check if the user has visited before
     if (!localStorage.getItem('hasVisitedEarthSearch')) {
