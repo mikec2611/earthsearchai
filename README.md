@@ -11,6 +11,7 @@ An interactive 3D globe application that provides AI-powered insights, videos, a
 - **Location Search**: Find any place on Earth with intelligent search
 - **History Tracking**: Keep track of previously explored locations
 - **Mobile Responsive**: Works seamlessly on desktop and mobile devices
+- **Light/Dark Mode Toggle**: Switch between light and dark themes
 
 ## 🛠️ Technology Stack
 
